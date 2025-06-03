@@ -4,7 +4,7 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC5iHtPBq4eFJMM6gYAQT-mBWx66BZXtGk",
+  apiKey: "AIzaSyC5iHtPBq4eFJMM6gYAQT-mBWx66BZXtGk", // Replace with your actual API key from Firebase Console
   authDomain: "task-flow-demo-7c462.firebaseapp.com",
   projectId: "task-flow-demo-7c462",
   storageBucket: "task-flow-demo-7c462.appspot.com",

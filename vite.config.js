@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 3333,
-    strictPort: true, // This will make Vite fail if the port is taken instead of trying another port
+    port: 8765,
     host: true, // This enables listening on all network interfaces
     open: true  // This will open the browser automatically
   }

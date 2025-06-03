@@ -18,11 +18,20 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  function signup(email, password, displayName) {
-    return createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        return updateProfile(userCredential.user, { displayName });
+  async function signup(email, password, displayName) {
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      
+      // Update the user's profile with display name
+      await updateProfile(userCredential.user, {
+        displayName: displayName
       });
+      
+      return userCredential;
+    } catch (error) {
+      console.error("Signup error:", error);
+      throw error;
+    }
   }
 
   function login(email, password) {
