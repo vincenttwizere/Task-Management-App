@@ -6,15 +6,16 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5173,
-    strictPort: false, // Allow fallback to next available port
+    port: 4000,
+    strictPort: true, // Force the specified port
     host: true, // This enables listening on all network interfaces
     open: true, // This will open the browser automatically
-    cors: true // Enable CORS
+    cors: true, // Enable CORS
+    force: true // Force the server to close any existing process
   },
   preview: {
-    port: 5173,
-    strictPort: false,
+    port: 4000,
+    strictPort: true,
     host: true
   },
   resolve: {
@@ -22,5 +23,5 @@ export default defineConfig({
       '@': resolve(__dirname, 'src')
     }
   },
-  base: './' // This ensures assets are loaded correctly
+  base: '/' // Use root path for assets
 }) 

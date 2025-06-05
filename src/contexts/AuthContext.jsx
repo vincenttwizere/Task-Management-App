@@ -17,6 +17,7 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   async function signup(email, password, displayName) {
     console.log('Starting signup process...', { email, displayName }); // Debug log
@@ -40,7 +41,7 @@ export function AuthProvider({ children }) {
       // Refresh the user object
       await userCredential.user.reload();
       setCurrentUser(userCredential.user);
-      
+      setError(null);
       return userCredential;
     } catch (error) {
       console.error('Signup error details:', {
@@ -48,6 +49,7 @@ export function AuthProvider({ children }) {
         message: error.message,
         stack: error.stack
       });
+      setError(error.message);
       throw error;
     }
   }
@@ -56,14 +58,29 @@ export function AuthProvider({ children }) {
     if (!auth) {
       throw new Error('Authentication service is not initialized');
     }
-    return signInWithEmailAndPassword(auth, email, password);
+    try {
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      setError(null);
+      return result;
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error.message);
+      throw error;
+    }
   }
 
   async function logout() {
     if (!auth) {
       throw new Error('Authentication service is not initialized');
     }
-    return signOut(auth);
+    try {
+      await signOut(auth);
+      setError(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+      setError(error.message);
+      throw error;
+    }
   }
 
   useEffect(() => {
@@ -77,6 +94,11 @@ export function AuthProvider({ children }) {
       console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
       setCurrentUser(user);
       setLoading(false);
+      setError(null);
+    }, (error) => {
+      console.error('Auth state change error:', error);
+      setError(error.message);
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -84,6 +106,8 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    loading,
+    error,
     signup,
     login,
     logout,
