@@ -31,19 +31,31 @@ export default function Register() {
     try {
       setError('');
       setLoading(true);
-      await signup(email, password, displayName);
+      console.log('Attempting signup with:', { email, displayName }); // Log signup attempt
+      const result = await signup(email, password, displayName);
+      console.log('Signup successful:', result); // Log successful signup
       navigate('/');
     } catch (error) {
-      console.error('Registration error:', error);
-      setError(
-        error.code === 'auth/email-already-in-use'
-          ? 'This email is already registered'
-          : error.code === 'auth/invalid-email'
-          ? 'Invalid email address'
-          : error.code === 'auth/weak-password'
-          ? 'Password is too weak'
-          : 'Failed to create an account. Please try again.'
-      );
+      console.error('Detailed registration error:', {
+        code: error.code,
+        message: error.message,
+        fullError: error
+      });
+      
+      // More specific error messages
+      if (error.code === 'auth/email-already-in-use') {
+        setError('This email is already registered. Please try logging in instead.');
+      } else if (error.code === 'auth/invalid-email') {
+        setError('Please enter a valid email address.');
+      } else if (error.code === 'auth/weak-password') {
+        setError('Password is too weak. Please use at least 6 characters.');
+      } else if (error.code === 'auth/network-request-failed') {
+        setError('Network error. Please check your internet connection.');
+      } else if (error.code === 'auth/operation-not-allowed') {
+        setError('Email/password registration is not enabled. Please contact support.');
+      } else {
+        setError(`Registration failed: ${error.message || 'Please try again.'}`);
+      }
     } finally {
       setLoading(false);
     }
