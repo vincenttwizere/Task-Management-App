@@ -7,6 +7,7 @@ import Register from './pages/Register';
 import ProjectBoard from './pages/ProjectBoard';
 import TeamManagement from './pages/TeamManagement';
 import Analytics from './pages/Analytics';
+import AcceptInvite from './pages/AcceptInvite';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -40,6 +41,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <TeamManagement />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/team/accept-invite"
+                element={
+                  <PrivateRoute>
+                    <AcceptInvite />
                   </PrivateRoute>
                 }
               />
