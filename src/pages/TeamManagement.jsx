@@ -8,6 +8,7 @@ export default function TeamManagement() {
   const [inviteEmail, setInviteEmail] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [inviting, setInviting] = useState(false);
   const { currentUser } = useAuth();
 
   useEffect(() => {
@@ -34,16 +35,34 @@ export default function TeamManagement() {
 
     try {
       setError('');
+      setInviting(true);
+      
+      // Check if user is already invited
+      const existingInvite = teamMembers.find(
+        member => member.email.toLowerCase() === inviteEmail.toLowerCase()
+      );
+      
+      if (existingInvite) {
+        throw new Error('This email has already been invited');
+      }
+
+      // Add the invitation to Firestore
       await addDoc(collection(db, 'teamMembers'), {
         email: inviteEmail,
         teamOwnerId: currentUser.uid,
         status: 'pending',
         invitedAt: new Date(),
+        emailSent: false
       });
+
       setInviteEmail('');
+      // Show success message
+      alert('Invitation sent! The user will receive an email shortly.');
     } catch (error) {
-      setError('Failed to send invitation. Please try again.');
+      setError(error.message || 'Failed to send invitation. Please try again.');
       console.error('Error inviting member:', error);
+    } finally {
+      setInviting(false);
     }
   };
 
@@ -52,7 +71,21 @@ export default function TeamManagement() {
       await deleteDoc(doc(db, 'teamMembers', memberId));
     } catch (error) {
       console.error('Error removing member:', error);
+      alert('Failed to remove team member. Please try again.');
     }
+  };
+
+  const getInviteStatus = (member) => {
+    if (member.status === 'accepted') {
+      return <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Active</span>;
+    }
+    if (member.emailSent) {
+      return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">Invitation Sent</span>;
+    }
+    if (member.error) {
+      return <span className="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Failed to Send</span>;
+    }
+    return <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Pending</span>;
   };
 
   return (
@@ -79,12 +112,14 @@ export default function TeamManagement() {
               onChange={(e) => setInviteEmail(e.target.value)}
               placeholder="Enter email address"
               className="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              disabled={inviting}
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              disabled={inviting}
+              className="px-4 py-2 bg-primary-600 text-white rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             >
-              Send Invitation
+              {inviting ? 'Sending...' : 'Send Invitation'}
             </button>
           </div>
         </form>
@@ -108,18 +143,12 @@ export default function TeamManagement() {
                       <p className="text-sm font-medium text-gray-900">
                         {member.email}
                       </p>
-                      <p className="text-sm text-gray-500">
-                        Status:{' '}
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            member.status === 'pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-green-100 text-green-800'
-                          }`}
-                        >
-                          {member.status}
-                        </span>
-                      </p>
+                      <div className="mt-1">
+                        {getInviteStatus(member)}
+                        {member.error && (
+                          <p className="text-xs text-red-600 mt-1">{member.error}</p>
+                        )}
+                      </div>
                     </div>
                     <button
                       onClick={() => removeMember(member.id)}
