@@ -1,53 +1,103 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  HomeIcon,
+  ClipboardDocumentListIcon,
+  FolderIcon,
+  CalendarIcon,
+  ChartBarIcon,
+  ArrowRightOnRectangleIcon,
+} from '@heroicons/react/24/outline';
 
 export default function Navbar() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, signOut } = useAuth();
   const location = useLocation();
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-    } catch (error) {
-      console.error('Failed to log out:', error);
-    }
-  };
-
-  // Don't show navbar on login/register pages
+  // Don't show navbar on login and register pages
   if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
 
+  const navigation = [
+    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+    { name: 'Tasks', href: '/tasks', icon: ClipboardDocumentListIcon },
+    { name: 'Projects', href: '/projects', icon: FolderIcon },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
+    { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
+  ];
+
   return (
-    <nav className="bg-white shadow-lg sticky top-0 z-50">
+    <nav className="bg-white shadow">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
+            {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/" className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-primary-600 to-primary-400 rounded-lg flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">T</span>
-                </div>
-                <span className="text-xl font-bold bg-gradient-to-r from-primary-600 to-primary-400 bg-clip-text text-transparent">
-                  TaskFlow
-                </span>
+              <Link to="/dashboard" className="text-xl font-bold text-primary-600">
+                TaskFlow
               </Link>
+            </div>
+
+            {/* Navigation Links */}
+            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+              {navigation.map((item) => {
+                const isActive = location.pathname === item.href;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
+                      isActive
+                        ? 'border-primary-500 text-gray-900'
+                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    }`}
+                  >
+                    <item.icon className="h-5 w-5 mr-1" />
+                    {item.name}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {currentUser && (
-            <div className="flex items-center">
-              <span className="text-gray-700 mr-4">
-                Welcome, {currentUser.displayName || 'User'}
+          {/* User Menu */}
+          <div className="flex items-center">
+            <div className="flex-shrink-0">
+              <span className="text-sm text-gray-500 mr-4">
+                Welcome, {currentUser?.displayName || 'User'}
               </span>
               <button
-                onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                onClick={signOut}
+                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
               >
-                Sign out
+                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" />
+                Sign Out
               </button>
             </div>
-          )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu */}
+      <div className="sm:hidden">
+        <div className="pt-2 pb-3 space-y-1">
+          {navigation.map((item) => {
+            const isActive = location.pathname === item.href;
+            return (
+              <Link
+                key={item.name}
+                to={item.href}
+                className={`flex items-center px-3 py-2 text-base font-medium ${
+                  isActive
+                    ? 'bg-primary-50 border-primary-500 text-primary-700'
+                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
+                }`}
+              >
+                <item.icon className="h-5 w-5 mr-2" />
+                {item.name}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </nav>
