@@ -3,34 +3,87 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Add error logging
-const root = document.getElementById('root');
+// Add error handling for the initial render
+const renderApp = () => {
+  const root = document.getElementById('root');
+  
+  if (!root) {
+    console.error('Root element not found!');
+    return;
+  }
 
-if (!root) {
-  console.error('Root element not found!');
-} else {
   try {
-    ReactDOM.createRoot(root).render(
+    console.log('Starting app render...');
+    
+    const app = (
       <React.StrictMode>
-        <ErrorBoundary>
-          <App />
-        </ErrorBoundary>
+        <App />
       </React.StrictMode>
     );
+
+    // Create root and render
+    const reactRoot = ReactDOM.createRoot(root);
+    reactRoot.render(app);
+    
+    console.log('App rendered successfully');
   } catch (error) {
     console.error('Error rendering app:', error);
+    
+    // Show error UI
     root.innerHTML = `
       <div style="
-        padding: 20px;
-        text-align: center;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         font-family: system-ui, -apple-system, sans-serif;
+        background-color: #f9fafb;
+        padding: 20px;
       ">
-        <h1 style="color: #666;">Something went wrong</h1>
-        <p style="color: #888;">Please check the console for more information.</p>
+        <div style="
+          max-width: 500px;
+          padding: 24px;
+          background: white;
+          border-radius: 8px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          text-align: center;
+        ">
+          <h1 style="
+            font-size: 24px;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 16px;
+          ">Something went wrong</h1>
+          <p style="
+            color: #4b5563;
+            margin-bottom: 16px;
+          ">${error.message}</p>
+          <button onclick="window.location.reload()" style="
+            background: #0284c7;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+          ">Reload Page</button>
+        </div>
       </div>
     `;
   }
-}
+};
+
+// Add window error handlers
+window.onerror = function(message, source, lineno, colno, error) {
+  console.error('Global error:', { message, source, lineno, colno, error });
+  return false;
+};
+
+window.onunhandledrejection = function(event) {
+  console.error('Unhandled promise rejection:', event.reason);
+};
+
+// Initialize the app
+renderApp();
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {

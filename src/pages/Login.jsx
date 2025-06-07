@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -7,23 +7,49 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
   const navigate = useNavigate();
+
+  // Debug logs
+  useEffect(() => {
+    console.log('Login component mounted');
+    console.log('Current auth state:', { currentUser });
+    
+    // Check if Firebase is initialized
+    try {
+      const firebaseApp = import.meta.env.VITE_FIREBASE_API_KEY;
+      console.log('Firebase config available:', !!firebaseApp);
+    } catch (error) {
+      console.error('Error checking Firebase:', error);
+    }
+  }, [currentUser]);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    console.log('Login attempt with email:', email);
 
     try {
       setError('');
       setLoading(true);
+      console.log('Attempting login...');
       await login(email, password);
+      console.log('Login successful, navigating to dashboard');
       navigate('/');
     } catch (error) {
+      console.error('Login error:', error);
       setError('Failed to sign in. Please check your credentials.');
     } finally {
       setLoading(false);
     }
   }
+
+  // If user is already logged in, redirect to dashboard
+  useEffect(() => {
+    if (currentUser) {
+      console.log('User already logged in, redirecting to dashboard');
+      navigate('/');
+    }
+  }, [currentUser, navigate]);
 
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -32,6 +58,9 @@ export default function Login() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Welcome back to TaskFlow
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
@@ -78,19 +107,42 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                loading 
+                  ? 'bg-primary-400 cursor-not-allowed'
+                  : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
+              }`}
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? (
+                <>
+                  <span className="absolute left-0 inset-y-0 flex items-center pl-3">
+                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                  </span>
+                  Signing in...
+                </>
+              ) : (
+                'Sign in'
+              )}
             </button>
           </div>
 
-          <div className="text-sm text-center">
-            <Link
-              to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              Don't have an account? Sign up
-            </Link>
+          <div className="flex items-center justify-between">
+            <div className="text-sm">
+              <Link
+                to="/forgot-password"
+                className="font-medium text-primary-600 hover:text-primary-500"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+            <div className="text-sm">
+              <Link
+                to="/register"
+                className="font-medium text-primary-600 hover:text-primary-500"
+              >
+                Create an account
+              </Link>
+            </div>
           </div>
         </form>
       </div>

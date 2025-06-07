@@ -6,13 +6,22 @@ import { getStorage } from 'firebase/storage';
 console.log('Initializing Firebase...'); // Debug log
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDku9xAggMUfcdRXXbUk9RLA3IU8ge6QW4",
-  authDomain: "task-management-app-34479.firebaseapp.com",
-  projectId: "task-management-app-34479",
-  storageBucket: "task-management-app-34479.appspot.com",
-  messagingSenderId: "691969416725",
-  appId: "1:691969416725:web:6102e1b6ac864d8905f81c" // This is a temporary appId, you'll need to replace it
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
+
+// Check if environment variables are properly loaded
+const missingVars = Object.entries(firebaseConfig).filter(([_, value]) => !value);
+if (missingVars.length > 0) {
+  console.error('Missing Firebase configuration variables:', missingVars.map(([key]) => key));
+  throw new Error('Firebase configuration is incomplete. Check your environment variables.');
+}
+
+console.log('Firebase configuration loaded');
 
 // Initialize Firebase with error handling
 let app;
@@ -43,9 +52,11 @@ try {
   throw error;
 }
 
-export { auth, db, storage };
-
 // Log the auth state to verify initialization
 auth.onAuthStateChanged((user) => {
-  console.log('Auth state:', user ? 'User is signed in' : 'No user');
-}); 
+  console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
+}, (error) => {
+  console.error('Auth state change error:', error);
+});
+
+export { auth, db, storage }; 

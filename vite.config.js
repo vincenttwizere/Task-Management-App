@@ -6,16 +6,16 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 4000,
-    strictPort: true, // Force the specified port
+    port: 9999,
+    strictPort: false, // Allow fallback to next available port
     host: true, // This enables listening on all network interfaces
     open: true, // This will open the browser automatically
     cors: true, // Enable CORS
     force: true // Force the server to close any existing process
   },
   preview: {
-    port: 4000,
-    strictPort: true,
+    port: 9999,
+    strictPort: false,
     host: true
   },
   resolve: {
