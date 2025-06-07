@@ -14,14 +14,6 @@ export default function Login() {
   useEffect(() => {
     console.log('Login component mounted');
     console.log('Current auth state:', { currentUser });
-    
-    // Check if Firebase is initialized
-    try {
-      const firebaseApp = import.meta.env.VITE_FIREBASE_API_KEY;
-      console.log('Firebase config available:', !!firebaseApp);
-    } catch (error) {
-      console.error('Error checking Firebase:', error);
-    }
   }, [currentUser]);
 
   async function handleSubmit(e) {
@@ -126,23 +118,10 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-primary-600 hover:text-primary-500"
-              >
-                Forgot your password?
-              </Link>
-            </div>
-            <div className="text-sm">
-              <Link
-                to="/register"
-                className="font-medium text-primary-600 hover:text-primary-500"
-              >
-                Create an account
-              </Link>
-            </div>
+          <div className="text-sm text-center">
+            <Link to="/register" className="font-medium text-primary-600 hover:text-primary-500">
+              Don't have an account? Sign up
+            </Link>
           </div>
         </form>
       </div>

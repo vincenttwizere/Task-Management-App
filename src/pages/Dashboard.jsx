@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { collection, query, where, onSnapshot, addDoc, updateDoc, doc, deleteDoc } from 'firebase/firestore';
-import { db } from '../config/firebase';
 import { useAuth } from '../contexts/AuthContext';
 import { PlusIcon, CalendarIcon, TagIcon, CheckCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
@@ -21,61 +19,72 @@ export default function Dashboard() {
     { id: 'health', name: 'Health', color: 'bg-red-100 text-red-800' },
   ];
 
+  // Mock tasks data
+  const mockTasks = [
+    {
+      id: '1',
+      title: 'Complete project proposal',
+      category: 'work',
+      completed: false,
+      dueDate: new Date(Date.now() + 86400000), // tomorrow
+      createdAt: new Date()
+    },
+    {
+      id: '2',
+      title: 'Buy groceries',
+      category: 'shopping',
+      completed: true,
+      dueDate: new Date(Date.now() - 86400000), // yesterday
+      createdAt: new Date(Date.now() - 172800000)
+    },
+    {
+      id: '3',
+      title: 'Morning workout',
+      category: 'health',
+      completed: false,
+      dueDate: new Date(Date.now() + 43200000), // 12 hours from now
+      createdAt: new Date(Date.now() - 86400000)
+    }
+  ];
+
   useEffect(() => {
-    const q = query(
-      collection(db, 'tasks'),
-      where('userId', '==', currentUser.uid)
-    );
-
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      const tasksData = [];
-      querySnapshot.forEach((doc) => {
-        tasksData.push({ id: doc.id, ...doc.data() });
-      });
-      setTasks(tasksData.sort((a, b) => b.createdAt?.toDate() - a.createdAt?.toDate()));
+    // Simulate loading delay
+    setTimeout(() => {
+      setTasks(mockTasks);
       setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [currentUser]);
+    }, 1000);
+  }, []);
 
   const addTask = async (e) => {
     e.preventDefault();
     if (!newTask.trim()) return;
 
-    try {
-      await addDoc(collection(db, 'tasks'), {
-        title: newTask,
-        completed: false,
-        userId: currentUser.uid,
-        category: newTaskCategory,
-        dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
-        createdAt: new Date(),
-      });
-      setNewTask('');
-      setNewTaskDueDate('');
-    } catch (error) {
-      console.error('Error adding task:', error);
-    }
+    const newTaskObj = {
+      id: Date.now().toString(),
+      title: newTask,
+      category: newTaskCategory,
+      completed: false,
+      dueDate: newTaskDueDate ? new Date(newTaskDueDate) : null,
+      createdAt: new Date()
+    };
+
+    setTasks(prevTasks => [newTaskObj, ...prevTasks]);
+    setNewTask('');
+    setNewTaskDueDate('');
   };
 
-  const toggleTaskStatus = async (taskId, completed) => {
-    try {
-      const taskRef = doc(db, 'tasks', taskId);
-      await updateDoc(taskRef, {
-        completed: !completed,
-      });
-    } catch (error) {
-      console.error('Error updating task:', error);
-    }
+  const toggleTaskStatus = async (taskId) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === taskId
+          ? { ...task, completed: !task.completed }
+          : task
+      )
+    );
   };
 
   const deleteTask = async (taskId) => {
-    try {
-      await deleteDoc(doc(db, 'tasks', taskId));
-    } catch (error) {
-      console.error('Error deleting task:', error);
-    }
+    setTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
   };
 
   const filteredTasks = tasks.filter(task => {
@@ -91,7 +100,7 @@ export default function Dashboard() {
   const getTaskStatusColor = (dueDate) => {
     if (!dueDate) return '';
     const today = new Date();
-    const due = dueDate.toDate();
+    const due = new Date(dueDate);
     const diffDays = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) return 'text-red-600';
@@ -109,46 +118,39 @@ export default function Dashboard() {
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Add New Task</h2>
         <form onSubmit={addTask} className="space-y-4">
-          <div className="flex gap-4">
+          <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
-              placeholder="What needs to be done?"
-              className="flex-1 rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+              placeholder="Add a new task..."
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            />
+            <select
+              value={newTaskCategory}
+              onChange={(e) => setNewTaskCategory(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              {categories.map(category => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="date"
+              value={newTaskDueDate}
+              onChange={(e) => setNewTaskDueDate(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             />
             <button
               type="submit"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
             >
-              <PlusIcon className="h-5 w-5 mr-1.5" />
+              <PlusIcon className="h-5 w-5 mr-2" />
               Add Task
             </button>
-          </div>
-          <div className="flex gap-4">
-            <div className="w-1/3">
-              <select
-                value={newTaskCategory}
-                onChange={(e) => setNewTaskCategory(e.target.value)}
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              >
-                {categories.map(category => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="w-1/3">
-              <input
-                type="date"
-                value={newTaskDueDate}
-                onChange={(e) => setNewTaskDueDate(e.target.value)}
-                className="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              />
-            </div>
           </div>
         </form>
       </div>
@@ -197,67 +199,58 @@ export default function Dashboard() {
             </div>
           ) : filteredTasks.length === 0 ? (
             <div className="text-center py-12">
-              <div className="mx-auto h-12 w-12 text-gray-400">
-                <CheckCircleIcon className="h-12 w-12" />
-              </div>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {filter === 'all' 
-                  ? 'Get started by creating a new task above!'
-                  : filter === 'active'
-                    ? 'No active tasks. Great job!'
-                    : 'No completed tasks yet.'}
-              </p>
+              <p className="text-gray-500">No tasks found. Add a new task to get started!</p>
             </div>
           ) : (
-            <ul className="divide-y divide-gray-100">
-              {filteredTasks.map((task) => (
-                <li key={task.id} className="py-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start space-x-3 flex-1">
-                      <div className="flex-shrink-0">
-                        <button
-                          onClick={() => toggleTaskStatus(task.id, task.completed)}
-                          className={`h-5 w-5 rounded-full border ${
-                            task.completed
-                              ? 'bg-primary-600 border-transparent'
-                              : 'border-gray-300 hover:border-primary-500'
-                          }`}
-                        >
-                          {task.completed && (
-                            <CheckCircleIcon className="h-5 w-5 text-white" />
-                          )}
-                        </button>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center space-x-2">
-                          <span className={`text-sm font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                            {task.title}
-                          </span>
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(task.category)}`}>
-                            {categories.find(c => c.id === task.category)?.name}
-                          </span>
-                        </div>
+            <div className="space-y-4">
+              {filteredTasks.map(task => (
+                <div
+                  key={task.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => toggleTaskStatus(task.id)}
+                      className={`p-1 rounded-full ${
+                        task.completed
+                          ? 'text-green-600 hover:text-green-700'
+                          : 'text-gray-400 hover:text-gray-500'
+                      }`}
+                    >
+                      {task.completed ? (
+                        <CheckCircleIcon className="h-6 w-6" />
+                      ) : (
+                        <XCircleIcon className="h-6 w-6" />
+                      )}
+                    </button>
+                    <div>
+                      <h3 className={`text-lg font-medium ${
+                        task.completed ? 'text-gray-500 line-through' : 'text-gray-900'
+                      }`}>
+                        {task.title}
+                      </h3>
+                      <div className="flex items-center space-x-2 mt-1">
+                        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(task.category)}`}>
+                          {categories.find(c => c.id === task.category)?.name}
+                        </span>
                         {task.dueDate && (
-                          <div className="mt-1 flex items-center space-x-1">
-                            <CalendarIcon className={`h-4 w-4 ${getTaskStatusColor(task.dueDate)}`} />
-                            <span className={`text-sm ${getTaskStatusColor(task.dueDate)}`}>
-                              Due {task.dueDate.toDate().toLocaleDateString()}
-                            </span>
-                          </div>
+                          <span className={`text-sm ${getTaskStatusColor(task.dueDate)}`}>
+                            <CalendarIcon className="h-4 w-4 inline mr-1" />
+                            {new Date(task.dueDate).toLocaleDateString()}
+                          </span>
                         )}
                       </div>
                     </div>
-                    <button
-                      onClick={() => deleteTask(task.id)}
-                      className="ml-4 flex-shrink-0 text-gray-400 hover:text-red-600"
-                    >
-                      <XCircleIcon className="h-5 w-5" />
-                    </button>
                   </div>
-                </li>
+                  <button
+                    onClick={() => deleteTask(task.id)}
+                    className="text-gray-400 hover:text-red-600 transition-colors"
+                  >
+                    <XCircleIcon className="h-5 w-5" />
+                  </button>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
       </div>
