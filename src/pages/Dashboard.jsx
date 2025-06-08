@@ -179,7 +179,7 @@ export default function Dashboard() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             {/* Notifications */}
             <div className="relative">
-              <button
+            <button
                 onClick={() => setShowNotifications(!showNotifications)}
                 className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
               >
@@ -189,14 +189,14 @@ export default function Dashboard() {
                     {unreadNotificationsCount}
                   </span>
                 )}
-              </button>
+            </button>
 
               {/* Notifications Dropdown */}
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
                   <div className="px-4 py-2 border-b border-gray-200">
                     <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
-                  </div>
+          </div>
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                       notifications.map(notification => (
@@ -230,12 +230,12 @@ export default function Dashboard() {
                     ) : (
                       <div className="px-4 py-3 text-sm text-gray-500">
                         No notifications
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
             </div>
+                    )}
+            </div>
+          </div>
+              )}
+      </div>
 
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2">
@@ -321,7 +321,7 @@ export default function Dashboard() {
             to="/calendar"
             className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
           >
-            <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <CalendarIcon className="h-8 w-8 text-purple-500" />
                 <h2 className="ml-3 text-lg font-medium text-gray-900">Calendar</h2>
@@ -357,10 +357,10 @@ export default function Dashboard() {
               <div className="flex items-center">
                 <ChartBarIcon className="h-8 w-8 text-yellow-500" />
                 <h2 className="ml-3 text-lg font-medium text-gray-900">Analytics</h2>
-              </div>
+                      </div>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
                 Updated
-              </span>
+                          </span>
             </div>
             <div className="mt-4">
               <div className="grid grid-cols-2 gap-4">
@@ -388,8 +388,8 @@ export default function Dashboard() {
               </div>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
                 6 Members
-              </span>
-            </div>
+                          </span>
+                        </div>
             <div className="mt-4">
               <div className="flex -space-x-2">
                 {['John', 'Jane', 'Mike', 'Sarah', 'Emily', 'David'].map((name, index) => (
@@ -399,14 +399,14 @@ export default function Dashboard() {
                   >
                     <span className="text-xs font-medium text-gray-600">
                       {name[0]}
-                    </span>
-                  </div>
+                            </span>
+                          </div>
                 ))}
               </div>
               <div className="mt-2 text-sm text-gray-500">
                 <span>Active members in 3 projects</span>
-              </div>
-            </div>
+                      </div>
+                    </div>
           </Link>
 
           {/* Recent Activity */}
