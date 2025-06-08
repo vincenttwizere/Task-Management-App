@@ -174,14 +174,14 @@ export default function Dashboard() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header with Actions */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
               >
                 <BellIcon className="h-6 w-6" />
                 {unreadNotificationsCount > 0 && (
@@ -193,7 +193,7 @@ export default function Dashboard() {
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-10">
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
                   <div className="px-4 py-2 border-b border-gray-200">
                     <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
                   </div>
@@ -238,24 +238,24 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="flex items-center space-x-2">
+            <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleAddTask}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 New Task
               </button>
               <button
                 onClick={handleAddProject}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
               >
                 <FolderIcon className="h-5 w-5 mr-2" />
                 New Project
               </button>
               <button
                 onClick={handleAddTeamMember}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
               >
                 <UserPlusIcon className="h-5 w-5 mr-2" />
                 Add Team Member
