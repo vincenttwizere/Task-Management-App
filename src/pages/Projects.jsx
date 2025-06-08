@@ -20,11 +20,10 @@ export default function Projects() {
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [isAddTeamModalOpen, setIsAddTeamModalOpen] = useState(false);
   const [newProject, setNewProject] = useState({
-    name: '',
+    title: '',
     description: '',
-    category: 'work',
     dueDate: '',
-    members: []
+    checklist: [{ text: '', checked: false }],
   });
   const [newTeamMember, setNewTeamMember] = useState({
     name: '',
@@ -37,30 +36,14 @@ export default function Projects() {
   const mockProjects = [
     {
       id: '1',
-      name: 'Website Redesign',
-      description: 'Complete overhaul of company website',
-      category: 'work',
-      tasks: [
-        {
-          id: '1',
-          title: 'Design new homepage',
-          priority: 'high',
-          completed: true,
-          dueDate: new Date(Date.now() - 86400000),
-          assignedTo: 'John Doe'
-        },
-        {
-          id: '2',
-          title: 'Implement responsive design',
-          priority: 'high',
-          completed: false,
-          dueDate: new Date(Date.now() + 172800000),
-          assignedTo: 'Jane Smith'
-        }
+      title: 'Website Redesign',
+      description: 'Complete overhaul of the company website with modern design and improved UX',
+      dueDate: '2024-03-15',
+      checklist: [
+        { text: 'Design new homepage', checked: true },
+        { text: 'Implement responsive layout', checked: false },
+        { text: 'Add new features', checked: false },
       ],
-      progress: 60,
-      members: ['John Doe', 'Jane Smith', 'Mike Johnson'],
-      dueDate: new Date(Date.now() + 259200000)
     },
     {
       id: '2',
@@ -167,24 +150,54 @@ export default function Projects() {
 
   const handleNewProjectSubmit = (e) => {
     e.preventDefault();
-    // Here you would typically save the project to your backend
     const project = {
       id: Date.now().toString(),
       ...newProject,
-      tasks: [],
-      progress: 0,
-      dueDate: new Date(newProject.dueDate),
-      createdAt: new Date()
     };
     setProjects([...projects, project]);
-    setIsNewProjectModalOpen(false);
     setNewProject({
-      name: '',
+      title: '',
       description: '',
-      category: 'work',
       dueDate: '',
-      members: []
+      checklist: [{ text: '', checked: false }],
     });
+    setIsNewProjectModalOpen(false);
+  };
+
+  const addChecklistItem = () => {
+    setNewProject({
+      ...newProject,
+      checklist: [...newProject.checklist, { text: '', checked: false }],
+    });
+  };
+
+  const removeChecklistItem = (index) => {
+    setNewProject({
+      ...newProject,
+      checklist: newProject.checklist.filter((_, i) => i !== index),
+    });
+  };
+
+  const updateChecklistItem = (index, value) => {
+    const updated = [...newProject.checklist];
+    updated[index].text = value;
+    setNewProject({ ...newProject, checklist: updated });
+  };
+
+  const updateChecklistChecked = (projectId, index) => {
+    setProjects(projects.map(project => {
+      if (project.id !== projectId) return project;
+      const updatedChecklist = project.checklist.map((item, i) =>
+        i === index ? { ...item, checked: !item.checked } : item
+      );
+      return { ...project, checklist: updatedChecklist };
+    }));
+  };
+
+  const getProgress = (checklist) => {
+    if (!checklist.length) return 0;
+    const completed = checklist.filter(item => item.checked).length;
+    return Math.round((completed / checklist.length) * 100);
   };
 
   const handleAddTeamMemberSubmit = (e) => {
@@ -227,130 +240,109 @@ export default function Projects() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <h1 className="text-2xl font-semibold text-gray-900">Projects</h1>
-          <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
-            <PlusIcon className="h-5 w-5 mr-2" />
+          <button
+            onClick={() => setIsNewProjectModalOpen(true)}
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+          >
             New Project
           </button>
         </div>
-
-        {/* New Project Modal */}
-        <Transition appear show={isNewProjectModalOpen} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-10"
-            onClose={() => setIsNewProjectModalOpen(false)}
-          >
-            <Transition.Child
-              as={Fragment}
-              enter="ease-out duration-300"
-              enterFrom="opacity-0"
-              enterTo="opacity-100"
-              leave="ease-in duration-200"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
-            </Transition.Child>
-
-            <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
-                <Transition.Child
-                  as={Fragment}
-                  enter="ease-out duration-300"
-                  enterFrom="opacity-0 scale-95"
-                  enterTo="opacity-100 scale-100"
-                  leave="ease-in duration-200"
-                  leaveFrom="opacity-100 scale-100"
-                  leaveTo="opacity-0 scale-95"
-                >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900"
-                    >
-                      Create New Project
-                    </Dialog.Title>
-
-                    <form onSubmit={handleNewProjectSubmit} className="mt-4 space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Project Name
-                        </label>
-                        <input
-                          type="text"
-                          required
-                          value={newProject.name}
-                          onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Description
-                        </label>
-                        <textarea
-                          value={newProject.description}
-                          onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
-                          rows={3}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Category
-                        </label>
-                        <select
-                          value={newProject.category}
-                          onChange={(e) => setNewProject({ ...newProject, category: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                        >
-                          <option value="work">Work</option>
-                          <option value="development">Development</option>
-                          <option value="marketing">Marketing</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Due Date
-                        </label>
-                        <input
-                          type="date"
-                          required
-                          value={newProject.dueDate}
-                          onChange={(e) => setNewProject({ ...newProject, dueDate: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                        />
-                      </div>
-
-                      <div className="mt-6 flex justify-end space-x-3">
-                        <button
-                          type="button"
-                          onClick={() => setIsNewProjectModalOpen(false)}
-                          className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="submit"
-                          className="inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                        >
-                          Create Project
-                        </button>
-                      </div>
-                    </form>
-                  </Dialog.Panel>
-                </Transition.Child>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {projects.map((project) => (
+            <div key={project.id} className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 p-6">
+              <h2 className="text-lg font-medium text-gray-900">{project.title}</h2>
+              <p className="mt-2 text-sm text-gray-500">{project.description}</p>
+              <div className="mt-4">
+                <div className="flex items-center justify-between text-sm text-gray-500">
+                  <span>Progress</span>
+                  <span>{getProgress(project.checklist)}%</span>
+                </div>
+                <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-primary-600 h-2 rounded-full" style={{ width: `${getProgress(project.checklist)}%` }}></div>
+                </div>
+              </div>
+              <div className="mt-4">
+                <h3 className="text-sm font-medium text-gray-900">Checklist</h3>
+                <ul className="mt-2 space-y-2">
+                  {project.checklist.map((item, idx) => (
+                    <li key={idx} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={item.checked}
+                        onChange={() => updateChecklistChecked(project.id, idx)}
+                        className="h-4 w-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                      />
+                      <span className={"ml-2 text-sm " + (item.checked ? 'line-through text-gray-400' : 'text-gray-900')}>{item.text}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="mt-4 flex items-center text-sm text-gray-500">
+                <span>Due {project.dueDate ? new Date(project.dueDate).toLocaleDateString() : 'N/A'}</span>
               </div>
             </div>
+          ))}
+        </div>
+        {/* New Project Modal */}
+        <Transition.Root show={isNewProjectModalOpen} as={Fragment}>
+          <Dialog as="div" className="fixed inset-0 z-10 overflow-y-auto" onClose={setIsNewProjectModalOpen}>
+            <div className="flex min-h-screen items-end justify-center px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0" enterTo="opacity-100" leave="ease-in duration-200" leaveFrom="opacity-100" leaveTo="opacity-0">
+                <Dialog.Overlay className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+              </Transition.Child>
+              <span className="hidden sm:inline-block sm:h-screen sm:align-middle" aria-hidden="true">&#8203;</span>
+              <Transition.Child as={Fragment} enter="ease-out duration-300" enterFrom="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95" enterTo="opacity-100 translate-y-0 sm:scale-100" leave="ease-in duration-200" leaveFrom="opacity-100 translate-y-0 sm:scale-100" leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95">
+                <div className="inline-block transform overflow-hidden rounded-lg bg-white px-4 pt-5 pb-4 text-left align-bottom shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg sm:p-6 sm:align-middle">
+                  <div className="absolute top-0 right-0 hidden pt-4 pr-4 sm:block">
+                    <button type="button" className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2" onClick={() => setIsNewProjectModalOpen(false)}>
+                      <span className="sr-only">Close</span>
+                      ×
+                    </button>
+                  </div>
+                  <div className="sm:flex sm:items-start">
+                    <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
+                      <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">Create New Project</Dialog.Title>
+                      <form onSubmit={handleNewProjectSubmit} className="mt-6 space-y-6">
+                        <div>
+                          <label htmlFor="project-title" className="block text-sm font-medium text-gray-700">Project Title</label>
+                          <input type="text" id="project-title" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" value={newProject.title} onChange={e => setNewProject({ ...newProject, title: e.target.value })} />
+                        </div>
+                        <div>
+                          <label htmlFor="project-description" className="block text-sm font-medium text-gray-700">Description</label>
+                          <textarea id="project-description" rows={3} required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" value={newProject.description} onChange={e => setNewProject({ ...newProject, description: e.target.value })} />
+                        </div>
+                        <div>
+                          <label htmlFor="project-due-date" className="block text-sm font-medium text-gray-700">Due Date</label>
+                          <input type="date" id="project-due-date" required className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" value={newProject.dueDate} onChange={e => setNewProject({ ...newProject, dueDate: e.target.value })} />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700">Checklist</label>
+                          <div className="mt-2 space-y-2">
+                            {newProject.checklist.map((item, index) => (
+                              <div key={index} className="flex items-center space-x-2">
+                                <input type="text" required className="block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm" placeholder="Task description" value={item.text} onChange={e => updateChecklistItem(index, e.target.value)} />
+                                {index > 0 && (
+                                  <button type="button" onClick={() => removeChecklistItem(index)} className="inline-flex items-center p-1 border border-transparent rounded-full text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">×</button>
+                                )}
+                              </div>
+                            ))}
+                            <button type="button" onClick={addChecklistItem} className="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-primary-700 bg-primary-100 hover:bg-primary-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">Add Task</button>
+                          </div>
+                        </div>
+                        <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
+                          <button type="submit" className="inline-flex w-full justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-base font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 sm:ml-3 sm:w-auto sm:text-sm">Create Project</button>
+                          <button type="button" className="mt-3 inline-flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-base font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 sm:mt-0 sm:w-auto sm:text-sm" onClick={() => setIsNewProjectModalOpen(false)}>Cancel</button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </Transition.Child>
+            </div>
           </Dialog>
-        </Transition>
-
+        </Transition.Root>
         {/* Add Team Member Modal */}
         <Transition appear show={isAddTeamModalOpen} as={Fragment}>
           <Dialog
@@ -471,109 +463,6 @@ export default function Projects() {
             </div>
           </Dialog>
         </Transition>
-
-        {/* Projects Grid */}
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {projects.map(project => (
-            <div
-              key={project.id}
-              className="bg-white shadow rounded-lg overflow-hidden"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-medium text-gray-900">
-                      {project.name}
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-500">
-                      {project.description}
-                    </p>
-                  </div>
-                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(project.category)}`}>
-                    {project.category}
-                  </span>
-                </div>
-
-                {/* Progress Bar */}
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm font-medium text-gray-700">
-                      Progress
-                    </span>
-                    <span className="text-sm font-medium text-gray-700">
-                      {project.progress}%
-                    </span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-primary-600 h-2 rounded-full"
-                      style={{ width: `${project.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                {/* Tasks */}
-                <div className="mt-6">
-                  <h4 className="text-sm font-medium text-gray-900 mb-3">
-                    Tasks
-                  </h4>
-                  <div className="space-y-3">
-                    {project.tasks.map(task => (
-                      <div
-                        key={task.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <CheckCircleIcon
-                            className={`h-5 w-5 ${
-                              task.completed
-                                ? 'text-green-500'
-                                : 'text-gray-300'
-                            }`}
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-gray-900">
-                              {task.title}
-                            </p>
-                            <p className="text-xs text-gray-500">
-                              Assigned to {task.assignedTo}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(task.priority)}`}>
-                            {task.priority}
-                          </span>
-                          {task.dueDate && (
-                            <span className="text-xs text-gray-500">
-                              Due {new Date(task.dueDate).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Project Footer */}
-                <div className="mt-6 flex items-center justify-between">
-                  <div className="flex items-center space-x-2">
-                    <UserGroupIcon className="h-5 w-5 text-gray-400" />
-                    <span className="text-sm text-gray-500">
-                      {project.members.length} members
-                    </span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <ClockIcon className="h-5 w-5 text-gray-400" />
-                    <span className="text-sm text-gray-500">
-                      Due {new Date(project.dueDate).toLocaleDateString()}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
       </div>
     </DashboardLayout>
   );
