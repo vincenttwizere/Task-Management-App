@@ -38,18 +38,23 @@ export default function Projects() {
   const mockProjects = [
     {
       id: '1',
+      name: 'Website Redesign',
       title: 'Website Redesign',
       description: 'Complete overhaul of the company website with modern design and improved UX',
+      category: 'work',
       dueDate: '2024-03-15',
       checklist: [
         { text: 'Design new homepage', checked: true },
         { text: 'Implement responsive layout', checked: false },
         { text: 'Add new features', checked: false },
       ],
+      members: ['John Doe', 'Jane Smith'],
+      progress: 33
     },
     {
       id: '2',
       name: 'Mobile App Development',
+      title: 'Mobile App Development',
       description: 'Create new mobile app for iOS and Android',
       category: 'development',
       tasks: [
@@ -70,6 +75,12 @@ export default function Projects() {
           assignedTo: 'Sarah Wilson'
         }
       ],
+      checklist: [
+        { text: 'Set up development environment', checked: true },
+        { text: 'Design app wireframes', checked: false },
+        { text: 'Implement core features', checked: false },
+        { text: 'Testing and bug fixes', checked: false },
+      ],
       progress: 30,
       members: ['Mike Johnson', 'Sarah Wilson'],
       dueDate: new Date(Date.now() + 518400000)
@@ -77,6 +88,7 @@ export default function Projects() {
     {
       id: '3',
       name: 'Marketing Campaign',
+      title: 'Marketing Campaign',
       description: 'Q2 marketing campaign planning and execution',
       category: 'marketing',
       tasks: [
@@ -96,6 +108,12 @@ export default function Projects() {
           dueDate: new Date(Date.now() + 43200000),
           assignedTo: 'David Lee'
         }
+      ],
+      checklist: [
+        { text: 'Create campaign strategy', checked: true },
+        { text: 'Design marketing materials', checked: false },
+        { text: 'Launch social media campaign', checked: false },
+        { text: 'Track and analyze results', checked: false },
       ],
       progress: 45,
       members: ['Emily Brown', 'David Lee'],
@@ -264,7 +282,7 @@ export default function Projects() {
               onClick={() => handleProjectCardClick(project)}
               className="bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200 p-6 cursor-pointer"
             >
-              <h2 className="text-lg font-medium text-gray-900">{project.title}</h2>
+              <h2 className="text-lg font-medium text-gray-900">{project.name || project.title}</h2>
               <p className="mt-2 text-sm text-gray-500">{project.description}</p>
               <div className="mt-4">
                 <div className="flex items-center justify-between text-sm text-gray-500">
@@ -281,7 +299,7 @@ export default function Projects() {
               <div className="mt-4">
                 <h3 className="text-sm font-medium text-gray-900">Checklist</h3>
                 <ul className="mt-2 space-y-2">
-                  {project.checklist.map((item, idx) => (
+                  {project.checklist && project.checklist.map((item, idx) => (
                     <li key={idx} className="flex items-center">
                       <input
                         type="checkbox"
@@ -597,7 +615,7 @@ export default function Projects() {
 
                       <div>
                         <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
-                          {selectedProject.title}
+                          {selectedProject.name || selectedProject.title}
                         </Dialog.Title>
                         <div className="mt-4">
                           <p className="text-sm text-gray-500">{selectedProject.description}</p>
