@@ -23,15 +23,24 @@ export function AuthProvider({ children }) {
     console.log('Starting signup process...', { email, displayName });
     
     try {
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      
-      // Update profile with display name
-      if (result.user) {
-        await updateProfile(result.user, { displayName });
+      // Check if we're using mock auth
+      if (auth.signInWithEmailAndPassword) {
+        // Real Firebase auth
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Update profile with display name
+        if (result.user) {
+          await updateProfile(result.user, { displayName });
+        }
+        
+        setError(null);
+        return result;
+      } else {
+        // Mock auth
+        const result = await auth.createUserWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
       }
-      
-      setError(null);
-      return result;
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
@@ -41,9 +50,18 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      const result = await signInWithEmailAndPassword(auth, email, password);
-      setError(null);
-      return result;
+      // Check if we're using mock auth
+      if (auth.signInWithEmailAndPassword) {
+        // Real Firebase auth
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
+      } else {
+        // Mock auth
+        const result = await auth.signInWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);

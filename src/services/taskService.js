@@ -13,8 +13,18 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+// Check if we're using mock Firestore
+const isMockDb = !db.collection || typeof db.collection !== 'function';
+
 // Real-time tasks listener
 export const subscribeToTasks = (userId, callback) => {
+  if (isMockDb) {
+    // Mock implementation
+    console.log('Using mock task subscription for development');
+    callback([]);
+    return () => {};
+  }
+
   const q = query(
     collection(db, 'tasks'),
     where('assignedTo', '==', userId),
@@ -39,6 +49,13 @@ export const subscribeToTasks = (userId, callback) => {
 
 // Real-time tasks by project listener
 export const subscribeToProjectTasks = (projectId, callback) => {
+  if (isMockDb) {
+    // Mock implementation
+    console.log('Using mock project task subscription for development');
+    callback([]);
+    return () => {};
+  }
+
   const q = query(
     collection(db, 'tasks'),
     where('projectId', '==', projectId),
@@ -73,6 +90,13 @@ export const createTask = async (taskData, userId) => {
       completedAt: null
     };
 
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Creating mock task:', task);
+      const mockTask = { id: `mock-${Date.now()}`, ...task };
+      return mockTask;
+    }
+
     const docRef = await addDoc(collection(db, 'tasks'), task);
     return { id: docRef.id, ...task };
   } catch (error) {
@@ -84,6 +108,12 @@ export const createTask = async (taskData, userId) => {
 // Update a task
 export const updateTask = async (taskId, updates) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Updating mock task:', taskId, updates);
+      return Promise.resolve();
+    }
+
     const taskRef = doc(db, 'tasks', taskId);
     await updateDoc(taskRef, {
       ...updates,
@@ -98,6 +128,12 @@ export const updateTask = async (taskId, updates) => {
 // Delete a task
 export const deleteTask = async (taskId) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Deleting mock task:', taskId);
+      return Promise.resolve();
+    }
+
     await deleteDoc(doc(db, 'tasks', taskId));
   } catch (error) {
     console.error('Error deleting task:', error);
@@ -124,6 +160,12 @@ export const toggleTaskStatus = async (taskId, completed) => {
 // Get task by ID
 export const getTask = async (taskId) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Getting mock task:', taskId);
+      return { id: taskId, title: 'Mock Task', status: 'todo' };
+    }
+
     const taskRef = doc(db, 'tasks', taskId);
     const taskDoc = await getDoc(taskRef);
     

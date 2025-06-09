@@ -14,8 +14,18 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
+// Check if we're using mock Firestore
+const isMockDb = !db.collection || typeof db.collection !== 'function';
+
 // Real-time notifications listener
 export const subscribeToNotifications = (userId, callback) => {
+  if (isMockDb) {
+    // Mock implementation
+    console.log('Using mock notification subscription for development');
+    callback([]);
+    return () => {};
+  }
+
   const q = query(
     collection(db, 'notifications'),
     where('userId', '==', userId),
@@ -45,6 +55,13 @@ export const createNotification = async (notificationData) => {
       createdAt: serverTimestamp()
     };
 
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Creating mock notification:', notification);
+      const mockNotification = { id: `mock-${Date.now()}`, ...notification };
+      return mockNotification;
+    }
+
     const docRef = await addDoc(collection(db, 'notifications'), notification);
     return { id: docRef.id, ...notification };
   } catch (error) {
@@ -56,6 +73,12 @@ export const createNotification = async (notificationData) => {
 // Mark notification as read
 export const markNotificationAsRead = async (notificationId) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Marking mock notification as read:', notificationId);
+      return Promise.resolve();
+    }
+
     const notificationRef = doc(db, 'notifications', notificationId);
     await updateDoc(notificationRef, {
       read: true,
@@ -70,6 +93,12 @@ export const markNotificationAsRead = async (notificationId) => {
 // Mark all notifications as read
 export const markAllNotificationsAsRead = async (userId) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Marking all mock notifications as read for user:', userId);
+      return Promise.resolve();
+    }
+
     const q = query(
       collection(db, 'notifications'),
       where('userId', '==', userId),
@@ -96,6 +125,12 @@ export const markAllNotificationsAsRead = async (userId) => {
 // Delete a notification
 export const deleteNotification = async (notificationId) => {
   try {
+    if (isMockDb) {
+      // Mock implementation
+      console.log('Deleting mock notification:', notificationId);
+      return Promise.resolve();
+    }
+
     await deleteDoc(doc(db, 'notifications', notificationId));
   } catch (error) {
     console.error('Error deleting notification:', error);

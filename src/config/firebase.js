@@ -15,6 +15,10 @@ const firebaseConfig = {
   appId: process.env.VITE_FIREBASE_APP_ID || "1:123456789012:web:abcdef1234567890"
 };
 
+// Check if we're in development mode and using dummy credentials
+const isDevelopment = !process.env.VITE_FIREBASE_API_KEY || 
+                     process.env.VITE_FIREBASE_API_KEY === "AIzaSyDummyKeyForDevelopment123456789";
+
 // Initialize Firebase
 let app;
 let auth;
@@ -22,17 +26,83 @@ let db;
 let storage;
 
 try {
-  app = initializeApp(firebaseConfig);
-  console.log('Firebase initialized successfully');
-  
-  auth = getAuth(app);
-  console.log('Auth service initialized');
-  
-  db = getFirestore(app);
-  console.log('Firestore service initialized');
-  
-  storage = getStorage(app);
-  console.log('Storage service initialized');
+  if (isDevelopment) {
+    console.warn('⚠️  Using development mode with mock Firebase services');
+    console.warn('📝 To use real Firebase, create a .env.local file with your Firebase credentials');
+    
+    // Create mock services for development
+    auth = {
+      onAuthStateChanged: (callback) => {
+        // Simulate a logged-out state initially
+        callback(null);
+        return () => {};
+      },
+      signInWithEmailAndPassword: async (auth, email, password) => {
+        // Simulate successful login
+        const mockUser = {
+          uid: 'dev-user-123',
+          email,
+          displayName: 'Dev User',
+          reload: async () => Promise.resolve()
+        };
+        return { user: mockUser };
+      },
+      createUserWithEmailAndPassword: async (auth, email, password) => {
+        // Simulate successful signup
+        const mockUser = {
+          uid: 'dev-user-123',
+          email,
+          displayName: 'Dev User',
+          reload: async () => Promise.resolve()
+        };
+        return { user: mockUser };
+      },
+      signOut: async () => {
+        // Simulate successful logout
+        return Promise.resolve();
+      }
+    };
+    
+    db = {
+      collection: () => ({
+        doc: () => ({
+          set: async () => Promise.resolve(),
+          get: async () => ({ data: () => ({}) }),
+          update: async () => Promise.resolve(),
+          delete: async () => Promise.resolve()
+        }),
+        where: () => ({
+          get: async () => ({ docs: [] })
+        }),
+        addDoc: async () => Promise.resolve({ id: 'mock-doc-id' }),
+        onSnapshot: (query, callback) => {
+          // Simulate empty data
+          callback({ docs: [] });
+          return () => {};
+        }
+      })
+    };
+    
+    storage = {
+      ref: () => ({
+        put: async () => Promise.resolve({ ref: { getDownloadURL: async () => 'mock-url' } })
+      })
+    };
+    
+    console.log('✅ Mock Firebase services initialized for development');
+  } else {
+    app = initializeApp(firebaseConfig);
+    console.log('Firebase initialized successfully');
+    
+    auth = getAuth(app);
+    console.log('Auth service initialized');
+    
+    db = getFirestore(app);
+    console.log('Firestore service initialized');
+    
+    storage = getStorage(app);
+    console.log('Storage service initialized');
+  }
 } catch (error) {
   console.error('Error initializing Firebase:', error);
   throw error;
