@@ -6,8 +6,6 @@ import {
   ChartBarIcon,
   FlagIcon,
   FolderIcon,
-  PlusIcon,
-  BellIcon,
   UserGroupIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -24,12 +22,6 @@ export default function DashboardLayout({ children }) {
     { name: 'Priority Tasks', href: '/dashboard/priority', icon: FlagIcon },
     { name: 'Projects', href: '/dashboard/projects', icon: FolderIcon },
     { name: 'Team', href: '/dashboard/team', icon: UserGroupIcon },
-  ];
-
-  const quickActions = [
-    { name: 'New Task', href: '#', icon: PlusIcon },
-    { name: 'New Project', href: '#', icon: FolderIcon },
-    { name: 'Add Team Member', href: '#', icon: UserGroupIcon },
   ];
 
   return (
@@ -84,38 +76,6 @@ export default function DashboardLayout({ children }) {
               );
             })}
           </nav>
-
-          {/* Quick Actions */}
-          <div className="px-2 py-4 border-t border-gray-200">
-            <div className="space-y-1">
-              {quickActions.map((action) => (
-                <button
-                  key={action.name}
-                  className={`flex items-center w-full px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50`}
-                >
-                  <action.icon className="mr-3 h-5 w-5 text-gray-400" />
-                  {!isSidebarCollapsed && <span>{action.name}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Notifications */}
-          <div className="px-2 py-4 border-t border-gray-200">
-            <button
-              className={`flex items-center w-full px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50`}
-            >
-              <BellIcon className="mr-3 h-5 w-5 text-gray-400" />
-              {!isSidebarCollapsed && (
-                <span className="flex items-center">
-                  Notifications
-                  <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-red-100 text-red-600 rounded-full">
-                    3
-                  </span>
-                </span>
-              )}
-            </button>
-          </div>
         </div>
       </div>
 
