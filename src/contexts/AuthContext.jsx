@@ -94,7 +94,16 @@ export function AuthProvider({ children }) {
       setLoading(false);
     });
 
-    return unsubscribe;
+    // Add a timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      console.log('Auth loading timeout - forcing loading to false');
+      setLoading(false);
+    }, 3000); // 3 second timeout
+
+    return () => {
+      clearTimeout(timeoutId);
+      unsubscribe();
+    };
   }, []);
 
   const value = {

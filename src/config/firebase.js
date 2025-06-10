@@ -33,12 +33,19 @@ try {
     // Create mock services for development
     auth = {
       onAuthStateChanged: (callback) => {
-        // Simulate a logged-out state initially
-        callback(null);
-        return () => {};
+        // Simulate a logged-out state initially with a small delay
+        console.log('Mock auth: Setting up auth state listener');
+        setTimeout(() => {
+          console.log('Mock auth: Calling callback with null (no user)');
+          callback(null);
+        }, 100); // Small delay to simulate real auth
+        return () => {
+          console.log('Mock auth: Cleaning up auth state listener');
+        };
       },
       signInWithEmailAndPassword: async (auth, email, password) => {
         // Simulate successful login
+        console.log('Mock auth: Signing in with', email);
         const mockUser = {
           uid: 'dev-user-123',
           email,
@@ -49,6 +56,7 @@ try {
       },
       createUserWithEmailAndPassword: async (auth, email, password) => {
         // Simulate successful signup
+        console.log('Mock auth: Creating user with', email);
         const mockUser = {
           uid: 'dev-user-123',
           email,
@@ -59,6 +67,7 @@ try {
       },
       signOut: async () => {
         // Simulate successful logout
+        console.log('Mock auth: Signing out');
         return Promise.resolve();
       }
     };
