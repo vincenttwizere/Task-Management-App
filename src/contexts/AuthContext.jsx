@@ -23,17 +23,24 @@ export function AuthProvider({ children }) {
     console.log('Starting signup process...', { email, displayName });
     
     try {
-      // For development, simulate successful signup
-      const mockUser = {
-        uid: 'dev-user-123',
-        email,
-        displayName,
-        reload: async () => Promise.resolve()
-      };
-      
-      setCurrentUser(mockUser);
-      setError(null);
-      return { user: mockUser };
+      // Check if we're using mock auth
+      if (auth.signInWithEmailAndPassword) {
+        // Real Firebase auth
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        
+        // Update profile with display name
+        if (result.user) {
+          await updateProfile(result.user, { displayName });
+        }
+        
+        setError(null);
+        return result;
+      } else {
+        // Mock auth
+        const result = await auth.createUserWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
+      }
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
@@ -43,17 +50,18 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
-      // For development, simulate successful login
-      const mockUser = {
-        uid: 'dev-user-123',
-        email,
-        displayName: 'Dev User',
-        reload: async () => Promise.resolve()
-      };
-      
-      setCurrentUser(mockUser);
-      setError(null);
-      return { user: mockUser };
+      // Check if we're using mock auth
+      if (auth.signInWithEmailAndPassword) {
+        // Real Firebase auth
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
+      } else {
+        // Mock auth
+        const result = await auth.signInWithEmailAndPassword(auth, email, password);
+        setError(null);
+        return result;
+      }
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);
@@ -63,9 +71,8 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      setCurrentUser(null);
+      await signOut(auth);
       setError(null);
-      return Promise.resolve();
     } catch (error) {
       console.error('Logout error:', error);
       setError(error.message);
@@ -76,21 +83,18 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
-    // For development, simulate initial auth state
-    const mockUser = {
-      uid: 'dev-user-123',
-      email: 'dev@example.com',
-      displayName: 'Dev User'
-    };
-    
-    // Simulate a delay to show loading state
-    setTimeout(() => {
-      setCurrentUser(mockUser);
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
+      setCurrentUser(user);
       setLoading(false);
       setError(null);
-    }, 1000);
+    }, (error) => {
+      console.error('Auth state change error:', error);
+      setError(error.message);
+      setLoading(false);
+    });
 
-    return () => {};
+    return unsubscribe;
   }, []);
 
   const value = {

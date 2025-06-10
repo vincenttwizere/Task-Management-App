@@ -11,9 +11,18 @@ import {
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  subscribeToProjects, 
+  createProject, 
+  updateProjectChecklist,
+  addProjectMember 
+} from '../services/projectService';
+import { createProjectUpdateNotification } from '../services/notificationService';
 
 export default function Projects() {
   const location = useLocation();
+  const { currentUser } = useAuth();
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -33,93 +42,7 @@ export default function Projects() {
     role: 'member',
     project: ''
   });
-
-  // Mock projects data
-  const mockProjects = [
-    {
-      id: '1',
-      name: 'Website Redesign',
-      title: 'Website Redesign',
-      description: 'Complete overhaul of the company website with modern design and improved UX',
-      category: 'work',
-      dueDate: '2024-03-15',
-      checklist: [
-        { text: 'Design new homepage', checked: true },
-        { text: 'Implement responsive layout', checked: false },
-        { text: 'Add new features', checked: false },
-      ],
-      members: ['John Doe', 'Jane Smith'],
-      progress: 33
-    },
-    {
-      id: '2',
-      name: 'Mobile App Development',
-      title: 'Mobile App Development',
-      description: 'Create new mobile app for iOS and Android',
-      category: 'development',
-      tasks: [
-        {
-          id: '3',
-          title: 'Set up development environment',
-          priority: 'medium',
-          completed: true,
-          dueDate: new Date(Date.now() - 172800000),
-          assignedTo: 'Mike Johnson'
-        },
-        {
-          id: '4',
-          title: 'Design app wireframes',
-          priority: 'high',
-          completed: false,
-          dueDate: new Date(Date.now() + 86400000),
-          assignedTo: 'Sarah Wilson'
-        }
-      ],
-      checklist: [
-        { text: 'Set up development environment', checked: true },
-        { text: 'Design app wireframes', checked: false },
-        { text: 'Implement core features', checked: false },
-        { text: 'Testing and bug fixes', checked: false },
-      ],
-      progress: 30,
-      members: ['Mike Johnson', 'Sarah Wilson'],
-      dueDate: new Date(Date.now() + 518400000)
-    },
-    {
-      id: '3',
-      name: 'Marketing Campaign',
-      title: 'Marketing Campaign',
-      description: 'Q2 marketing campaign planning and execution',
-      category: 'marketing',
-      tasks: [
-        {
-          id: '5',
-          title: 'Create campaign strategy',
-          priority: 'high',
-          completed: true,
-          dueDate: new Date(Date.now() - 259200000),
-          assignedTo: 'Emily Brown'
-        },
-        {
-          id: '6',
-          title: 'Design marketing materials',
-          priority: 'medium',
-          completed: false,
-          dueDate: new Date(Date.now() + 43200000),
-          assignedTo: 'David Lee'
-        }
-      ],
-      checklist: [
-        { text: 'Create campaign strategy', checked: true },
-        { text: 'Design marketing materials', checked: false },
-        { text: 'Launch social media campaign', checked: false },
-        { text: 'Track and analyze results', checked: false },
-      ],
-      progress: 45,
-      members: ['Emily Brown', 'David Lee'],
-      dueDate: new Date(Date.now() + 345600000)
-    }
-  ];
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check if we should show the new project modal
@@ -135,12 +58,16 @@ export default function Projects() {
   }, [location]);
 
   useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setProjects(mockProjects);
+    if (!currentUser) return;
+
+    // Subscribe to real-time projects
+    const unsubscribe = subscribeToProjects(currentUser.uid, (projectsData) => {
+      setProjects(projectsData);
       setLoading(false);
-    }, 1000);
-  }, []);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   const getCategoryColor = (category) => {
     switch (category) {
@@ -150,6 +77,10 @@ export default function Projects() {
         return 'bg-purple-100 text-purple-800';
       case 'marketing':
         return 'bg-green-100 text-green-800';
+      case 'personal':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'school':
+        return 'bg-indigo-100 text-indigo-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -168,21 +99,41 @@ export default function Projects() {
     }
   };
 
-  const handleNewProjectSubmit = (e) => {
+  const handleNewProjectSubmit = async (e) => {
     e.preventDefault();
-    const project = {
-      id: Date.now().toString(),
-      ...newProject,
-    };
-    setProjects([...projects, project]);
-    setNewProject({
-      name: '',
-      description: '',
-      category: 'work',
-      dueDate: '',
-      checklist: [{ text: '', checked: false }]
-    });
-    setIsNewProjectModalOpen(false);
+    setError('');
+    
+    try {
+      const projectData = {
+        name: newProject.name,
+        description: newProject.description,
+        category: newProject.category,
+        dueDate: newProject.dueDate,
+        checklist: newProject.checklist.filter(item => item.text.trim() !== '')
+      };
+
+      await createProject(projectData, currentUser.uid);
+      
+      // Create notification for project creation
+      await createProjectUpdateNotification(
+        'temp-id', // Will be updated after project creation
+        projectData.name,
+        'created',
+        currentUser.uid
+      );
+
+      setNewProject({
+        name: '',
+        description: '',
+        category: 'work',
+        dueDate: '',
+        checklist: [{ text: '', checked: false }]
+      });
+      setIsNewProjectModalOpen(false);
+    } catch (error) {
+      console.error('Error creating project:', error);
+      setError('Failed to create project. Please try again.');
+    }
   };
 
   const addChecklistItem = () => {
@@ -205,47 +156,52 @@ export default function Projects() {
     setNewProject({ ...newProject, checklist: updated });
   };
 
-  const updateChecklistChecked = (projectId, index) => {
-    setProjects(projects.map(project => {
-      if (project.id !== projectId) return project;
+  const updateChecklistChecked = async (projectId, index) => {
+    try {
+      const project = projects.find(p => p.id === projectId);
+      if (!project) return;
+
       const updatedChecklist = project.checklist.map((item, i) =>
         i === index ? { ...item, checked: !item.checked } : item
       );
-      return { ...project, checklist: updatedChecklist };
-    }));
+
+      await updateProjectChecklist(projectId, updatedChecklist);
+    } catch (error) {
+      console.error('Error updating checklist:', error);
+      setError('Failed to update checklist. Please try again.');
+    }
   };
 
   const getProgress = (checklist) => {
-    if (!checklist.length) return 0;
+    if (!checklist || !checklist.length) return 0;
     const completed = checklist.filter(item => item.checked).length;
     return Math.round((completed / checklist.length) * 100);
   };
 
-  const handleAddTeamMemberSubmit = (e) => {
+  const handleAddTeamMemberSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the team member to your backend
-    const member = {
-      id: Date.now().toString(),
-      ...newTeamMember,
-      joinedAt: new Date()
-    };
-    // Add member to the selected project
-    setProjects(projects.map(project => {
-      if (project.name === newTeamMember.project) {
-        return {
-          ...project,
-          members: [...project.members, member.name]
-        };
+    setError('');
+    
+    try {
+      const project = projects.find(p => p.name === newTeamMember.project);
+      if (!project) {
+        setError('Project not found');
+        return;
       }
-      return project;
-    }));
-    setIsAddTeamModalOpen(false);
-    setNewTeamMember({
-      name: '',
-      email: '',
-      role: 'member',
-      project: ''
-    });
+
+      await addProjectMember(project.id, newTeamMember.email);
+      
+      setIsAddTeamModalOpen(false);
+      setNewTeamMember({
+        name: '',
+        email: '',
+        role: 'member',
+        project: ''
+      });
+    } catch (error) {
+      console.error('Error adding team member:', error);
+      setError('Failed to add team member. Please try again.');
+    }
   };
 
   const handleProjectCardClick = (project) => {
@@ -275,6 +231,36 @@ export default function Projects() {
             New Project
           </button>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <div className="-mx-1.5 -my-1.5">
+                  <button
+                    onClick={() => setError('')}
+                    className="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                  >
+                    <span className="sr-only">Dismiss</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
             <div

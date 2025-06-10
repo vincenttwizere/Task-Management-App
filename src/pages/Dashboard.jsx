@@ -14,6 +14,8 @@ import {
   ClockIcon,
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
+import { subscribeToTasks, toggleTaskStatus } from '../services/taskService';
+import { subscribeToNotifications, markNotificationAsRead } from '../services/notificationService';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
@@ -23,119 +25,36 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  // Mock tasks data
-  const mockTasks = [
-    {
-      id: '1',
-      title: 'Complete project proposal',
-      category: 'work',
-      priority: 'high',
-      completed: false,
-      dueDate: new Date(Date.now() + 86400000), // tomorrow
-      createdAt: new Date(),
-      completedAt: null
-    },
-    {
-      id: '2',
-      title: 'Buy groceries',
-      category: 'shopping',
-      priority: 'medium',
-      completed: true,
-      dueDate: new Date(Date.now() - 86400000), // yesterday
-      createdAt: new Date(Date.now() - 172800000),
-      completedAt: new Date(Date.now() - 43200000) // 12 hours ago
-    },
-    {
-      id: '3',
-      title: 'Morning workout',
-      category: 'health',
-      priority: 'high',
-      completed: false,
-      dueDate: new Date(Date.now() + 43200000), // 12 hours from now
-      createdAt: new Date(Date.now() - 86400000),
-      completedAt: null
-    },
-    {
-      id: '4',
-      title: 'Read React documentation',
-      category: 'education',
-      priority: 'low',
-      completed: false,
-      dueDate: new Date(Date.now() + 172800000), // 2 days from now
-      createdAt: new Date(Date.now() - 259200000),
-      completedAt: null
-    },
-    {
-      id: '5',
-      title: 'Team meeting',
-      category: 'work',
-      priority: 'high',
-      completed: false,
-      dueDate: new Date(), // today
-      createdAt: new Date(Date.now() - 43200000),
-      completedAt: null
-    },
-    {
-      id: '6',
-      title: 'Update portfolio',
-      category: 'work',
-      priority: 'medium',
-      completed: true,
-      dueDate: new Date(Date.now() - 172800000), // 2 days ago
-      createdAt: new Date(Date.now() - 259200000),
-      completedAt: new Date(Date.now() - 86400000) // yesterday
-    }
-  ];
-
-  // Mock notifications data
-  const mockNotifications = [
-    {
-      id: '1',
-      title: 'New task assigned',
-      message: 'You have been assigned to "Design new homepage"',
-      time: '5 minutes ago',
-      read: false,
-      type: 'task'
-    },
-    {
-      id: '2',
-      title: 'Project update',
-      message: 'Website Redesign project is 60% complete',
-      time: '1 hour ago',
-      read: false,
-      type: 'project'
-    },
-    {
-      id: '3',
-      title: 'Team member joined',
-      message: 'Sarah Wilson joined the Mobile App Development project',
-      time: '2 hours ago',
-      read: true,
-      type: 'team'
-    }
-  ];
-
   useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setTasks(mockTasks);
-      setNotifications(mockNotifications);
-      setLoading(false);
-    }, 1000);
-  }, []);
+    if (!currentUser) return;
 
-  const handleTaskStatusChange = (taskId) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId
-          ? {
-              ...task,
-              completed: !task.completed,
-              completedAt: !task.completed ? new Date() : null
-            }
-          : task
-      )
-    );
+    // Subscribe to real-time tasks
+    const unsubscribeTasks = subscribeToTasks(currentUser.uid, (tasksData) => {
+      setTasks(tasksData);
+      setLoading(false);
+    });
+
+    // Subscribe to real-time notifications
+    const unsubscribeNotifications = subscribeToNotifications(currentUser.uid, (notificationsData) => {
+      setNotifications(notificationsData);
+    });
+
+    return () => {
+      unsubscribeTasks();
+      unsubscribeNotifications();
+    };
+  }, [currentUser]);
+
+  const handleTaskStatusChange = async (taskId) => {
+    try {
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) return;
+
+      const newStatus = task.status === 'completed' ? 'todo' : 'completed';
+      await toggleTaskStatus(taskId, newStatus === 'completed');
+    } catch (error) {
+      console.error('Error updating task status:', error);
+    }
   };
 
   const handleAddTask = () => {
@@ -150,12 +69,12 @@ export default function Dashboard() {
     navigate('/projects', { state: { showAddTeamModal: true } });
   };
 
-  const markNotificationAsRead = (notificationId) => {
-    setNotifications(notifications.map(notification =>
-      notification.id === notificationId
-        ? { ...notification, read: true }
-        : notification
-    ));
+  const markNotificationAsReadHandler = async (notificationId) => {
+    try {
+      await markNotificationAsRead(notificationId);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
   };
 
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
@@ -205,7 +124,7 @@ export default function Dashboard() {
                           className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${
                             !notification.read ? 'bg-blue-50' : ''
                           }`}
-                          onClick={() => markNotificationAsRead(notification.id)}
+                          onClick={() => markNotificationAsReadHandler(notification.id)}
                         >
                           <div className="flex items-start">
                             <div className="flex-shrink-0">

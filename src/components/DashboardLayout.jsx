@@ -16,12 +16,11 @@ export default function DashboardLayout({ children }) {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Overview', href: '/dashboard', icon: HomeIcon },
-    { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
-    { name: 'Analytics', href: '/dashboard/analytics', icon: ChartBarIcon },
-    { name: 'Priority Tasks', href: '/dashboard/priority', icon: FlagIcon },
-    { name: 'Projects', href: '/dashboard/projects', icon: FolderIcon },
-    { name: 'Team', href: '/dashboard/team', icon: UserGroupIcon },
+    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
+    { name: 'Tasks', href: '/tasks', icon: FlagIcon },
+    { name: 'Projects', href: '/projects', icon: FolderIcon },
+    { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
+    { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   ];
 
   return (

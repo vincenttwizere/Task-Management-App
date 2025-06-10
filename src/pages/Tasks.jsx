@@ -13,9 +13,18 @@ import {
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { 
+  subscribeToTasks, 
+  createTask, 
+  toggleTaskStatus,
+  updateTask 
+} from '../services/taskService';
+import { createTaskAssignmentNotification } from '../services/notificationService';
 
 export default function Tasks() {
   const location = useLocation();
+  const { currentUser } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
@@ -36,93 +45,27 @@ export default function Tasks() {
     project: '',
     assignedTo: ''
   });
-
-  // Mock tasks data
-  const mockTasks = [
-    {
-      id: '1',
-      title: 'Design new homepage',
-      description: 'Create wireframes and mockups for the new homepage design',
-      priority: 'high',
-      category: 'design',
-      status: 'completed',
-      dueDate: new Date(Date.now() - 86400000),
-      assignedTo: 'John Doe',
-      project: 'Website Redesign'
-    },
-    {
-      id: '2',
-      title: 'Implement responsive design',
-      description: 'Make the website responsive for all device sizes',
-      priority: 'high',
-      category: 'development',
-      status: 'in-progress',
-      dueDate: new Date(Date.now() + 172800000),
-      assignedTo: 'Jane Smith',
-      project: 'Website Redesign'
-    },
-    {
-      id: '3',
-      title: 'Set up development environment',
-      description: 'Configure development tools and dependencies',
-      priority: 'medium',
-      category: 'development',
-      status: 'completed',
-      dueDate: new Date(Date.now() - 172800000),
-      assignedTo: 'Mike Johnson',
-      project: 'Mobile App Development'
-    },
-    {
-      id: '4',
-      title: 'Design app wireframes',
-      description: 'Create wireframes for the mobile app',
-      priority: 'high',
-      category: 'design',
-      status: 'todo',
-      dueDate: new Date(Date.now() + 86400000),
-      assignedTo: 'Sarah Wilson',
-      project: 'Mobile App Development'
-    },
-    {
-      id: '5',
-      title: 'Create campaign strategy',
-      description: 'Develop Q2 marketing campaign strategy',
-      priority: 'high',
-      category: 'marketing',
-      status: 'completed',
-      dueDate: new Date(Date.now() - 259200000),
-      assignedTo: 'Emily Brown',
-      project: 'Marketing Campaign'
-    },
-    {
-      id: '6',
-      title: 'Design marketing materials',
-      description: 'Create visual assets for the marketing campaign',
-      priority: 'medium',
-      category: 'design',
-      status: 'in-progress',
-      dueDate: new Date(Date.now() + 43200000),
-      assignedTo: 'David Lee',
-      project: 'Marketing Campaign'
-    }
-  ];
-
-  useEffect(() => {
-    // Simulate loading delay
-    setTimeout(() => {
-      setTasks(mockTasks);
-      setLoading(false);
-    }, 1000);
-  }, []);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check if we should show the new task modal
     if (location.state?.showNewTaskModal) {
       setIsNewTaskModalOpen(true);
-      // Clear the state to prevent showing the modal again on refresh
       window.history.replaceState({}, document.title);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (!currentUser) return;
+
+    // Subscribe to real-time tasks
+    const unsubscribe = subscribeToTasks(currentUser.uid, (tasksData) => {
+      setTasks(tasksData);
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [currentUser]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {
@@ -152,12 +95,14 @@ export default function Tasks() {
 
   const getCategoryColor = (category) => {
     switch (category) {
-      case 'design':
-        return 'bg-purple-100 text-purple-800';
       case 'development':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-purple-100 text-purple-800';
+      case 'design':
+        return 'bg-pink-100 text-pink-800';
       case 'marketing':
         return 'bg-green-100 text-green-800';
+      case 'work':
+        return 'bg-blue-100 text-blue-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -167,66 +112,98 @@ export default function Tasks() {
     if (filters.status !== 'all' && task.status !== filters.status) return false;
     if (filters.priority !== 'all' && task.priority !== filters.priority) return false;
     if (filters.category !== 'all' && task.category !== filters.category) return false;
+    
     if (filters.dueDate !== 'all') {
       const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const tomorrow = new Date(today);
-      tomorrow.setDate(tomorrow.getDate() + 1);
-      const nextWeek = new Date(today);
-      nextWeek.setDate(nextWeek.getDate() + 7);
-
+      const taskDate = new Date(task.dueDate);
+      
       switch (filters.dueDate) {
         case 'today':
-          return task.dueDate.toDateString() === today.toDateString();
+          return taskDate.toDateString() === today.toDateString();
         case 'tomorrow':
-          return task.dueDate.toDateString() === tomorrow.toDateString();
+          const tomorrow = new Date(today);
+          tomorrow.setDate(tomorrow.getDate() + 1);
+          return taskDate.toDateString() === tomorrow.toDateString();
         case 'week':
-          return task.dueDate >= today && task.dueDate <= nextWeek;
+          const weekFromNow = new Date(today);
+          weekFromNow.setDate(weekFromNow.getDate() + 7);
+          return taskDate <= weekFromNow && taskDate >= today;
         case 'overdue':
-          return task.dueDate < today;
+          return taskDate < today && !task.completed;
         default:
           return true;
       }
     }
+    
     return true;
   });
 
   const sortedTasks = [...filteredTasks].sort((a, b) => {
     switch (sortBy) {
       case 'dueDate':
-        return a.dueDate - b.dueDate;
+        return new Date(a.dueDate) - new Date(b.dueDate);
       case 'priority':
-        const priorityOrder = { high: 0, medium: 1, low: 2 };
-        return priorityOrder[a.priority] - priorityOrder[b.priority];
+        const priorityOrder = { high: 3, medium: 2, low: 1 };
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
       case 'status':
-        const statusOrder = { 'todo': 0, 'in-progress': 1, 'completed': 2 };
+        const statusOrder = { todo: 1, 'in-progress': 2, completed: 3 };
         return statusOrder[a.status] - statusOrder[b.status];
       default:
         return 0;
     }
   });
 
-  const handleNewTaskSubmit = (e) => {
+  const handleNewTaskSubmit = async (e) => {
     e.preventDefault();
-    // Here you would typically save the task to your backend
-    const task = {
-      id: Date.now().toString(),
-      ...newTask,
-      status: 'todo',
-      dueDate: new Date(newTask.dueDate),
-      createdAt: new Date()
-    };
-    setTasks([...tasks, task]);
-    setIsNewTaskModalOpen(false);
-    setNewTask({
-      title: '',
-      description: '',
-      priority: 'medium',
-      category: 'development',
-      dueDate: '',
-      project: '',
-      assignedTo: ''
-    });
+    setError('');
+    
+    try {
+      const taskData = {
+        title: newTask.title,
+        description: newTask.description,
+        priority: newTask.priority,
+        category: newTask.category,
+        dueDate: newTask.dueDate,
+        projectId: newTask.project,
+        assignedTo: newTask.assignedTo || currentUser.uid
+      };
+
+      const createdTask = await createTask(taskData, currentUser.uid);
+      
+      // Create notification if task is assigned to someone else
+      if (newTask.assignedTo && newTask.assignedTo !== currentUser.uid) {
+        await createTaskAssignmentNotification(
+          createdTask.id,
+          newTask.assignedTo,
+          newTask.title,
+          currentUser.uid
+        );
+      }
+
+      setIsNewTaskModalOpen(false);
+      setNewTask({
+        title: '',
+        description: '',
+        priority: 'medium',
+        category: 'development',
+        dueDate: '',
+        project: '',
+        assignedTo: ''
+      });
+    } catch (error) {
+      console.error('Error creating task:', error);
+      setError('Failed to create task. Please try again.');
+    }
+  };
+
+  const handleTaskStatusToggle = async (taskId, currentStatus) => {
+    try {
+      const newStatus = currentStatus === 'completed' ? 'todo' : 'completed';
+      await toggleTaskStatus(taskId, newStatus === 'completed');
+    } catch (error) {
+      console.error('Error toggling task status:', error);
+      setError('Failed to update task status. Please try again.');
+    }
   };
 
   if (loading) {
@@ -262,6 +239,35 @@ export default function Tasks() {
             </button>
           </div>
         </div>
+
+        {/* Error Display */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <div className="-mx-1.5 -my-1.5">
+                  <button
+                    onClick={() => setError('')}
+                    className="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+                  >
+                    <span className="sr-only">Dismiss</span>
+                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Filters */}
         {showFilters && (
@@ -307,8 +313,8 @@ export default function Tasks() {
                   className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
                 >
                   <option value="all">All</option>
-                  <option value="design">Design</option>
                   <option value="development">Development</option>
+                  <option value="design">Design</option>
                   <option value="marketing">Marketing</option>
                 </select>
               </div>
