@@ -98,9 +98,15 @@ function Login({ onLogin }) {
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
             <p className="text-sm text-gray-600">
               Demo credentials: demo@taskflow.com / password
+            </p>
+            <p className="text-sm text-gray-600">
+              Don't have an account?{' '}
+              <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+                Sign up here
+              </a>
             </p>
           </div>
         </form>
@@ -234,6 +240,15 @@ function Signup({ onSignup }) {
             >
               Create Account
             </button>
+          </div>
+
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Already have an account?{' '}
+              <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+                Sign in here
+              </a>
+            </p>
           </div>
         </form>
       </div>
