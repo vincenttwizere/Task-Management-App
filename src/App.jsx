@@ -1,100 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import Tasks from './pages/Tasks';
-import Projects from './pages/Projects';
-import Calendar from './pages/Calendar';
-import Analytics from './pages/Analytics';
-import PrivateRoute from './components/PrivateRoute';
-
-function AppContent() {
-  const { currentUser, loading } = useAuth();
-
-  console.log('AppContent render:', { currentUser, loading });
-
-  if (loading) {
-    console.log('Showing loading state');
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  console.log('Rendering main app content');
-  return (
-    <Routes>
-      {/* Public Routes */}
-      <Route
-        path="/login"
-        element={currentUser ? <Navigate to="/dashboard" /> : <Login />}
-      />
-      <Route
-        path="/register"
-        element={currentUser ? <Navigate to="/dashboard" /> : <Register />}
-      />
-
-      {/* Protected Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/tasks"
-        element={
-          <PrivateRoute>
-            <Tasks />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/projects"
-        element={
-          <PrivateRoute>
-            <Projects />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/calendar"
-        element={
-          <PrivateRoute>
-            <Calendar />
-          </PrivateRoute>
-        }
-      />
-      <Route
-        path="/analytics"
-        element={
-          <PrivateRoute>
-            <Analytics />
-          </PrivateRoute>
-        }
-      />
-
-      {/* Catch all route */}
-      <Route path="*" element={<Navigate to={currentUser ? "/dashboard" : "/login"} />} />
-    </Routes>
-  );
-}
+import React from 'react';
 
 function App() {
-  console.log('App component rendering');
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <div className="min-h-screen bg-blue-500 flex items-center justify-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4">TaskFlow</h1>
+        <p className="text-gray-600 mb-6">Your task management app is running!</p>
+        <div className="space-y-2">
+          <div className="bg-green-100 p-3 rounded">
+            <span className="text-green-800">✅ React is working</span>
+          </div>
+          <div className="bg-blue-100 p-3 rounded">
+            <span className="text-blue-800">✅ Tailwind CSS is working</span>
+          </div>
+          <div className="bg-purple-100 p-3 rounded">
+            <span className="text-purple-800">✅ Development server is running</span>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
