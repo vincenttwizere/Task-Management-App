@@ -14,7 +14,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 // Login Component
-function Login({ onLogin }) {
+function Login({ onLogin, users }) {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -28,8 +28,9 @@ function Login({ onLogin }) {
       return;
     }
     // Simple validation - in real app, this would connect to backend
-    if (formData.email === 'demo@taskflow.com' && formData.password === 'password') {
-      onLogin({ email: formData.email, name: 'Demo User' });
+    const user = users.find(u => u.email === formData.email && u.password === formData.password);
+    if (user) {
+      onLogin(user);
     } else {
       setError('Invalid credentials. Use demo@taskflow.com / password');
     }
@@ -139,8 +140,12 @@ function Signup({ onSignup }) {
       setError('Password must be at least 6 characters');
       return;
     }
-    // In real app, this would create account in backend
-    onSignup({ email: formData.email, name: formData.name });
+    // Pass the password along with other user data
+    onSignup({ 
+      email: formData.email, 
+      name: formData.name,
+      password: formData.password
+    });
   };
 
   return (
@@ -407,6 +412,9 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [users, setUsers] = useState([
+    { email: 'demo@taskflow.com', password: 'password', name: 'Demo User' }
+  ]);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
@@ -422,6 +430,13 @@ function App() {
   };
 
   const handleSignup = (userData) => {
+    // Add the new user to the users array
+    const newUser = {
+      email: userData.email,
+      password: userData.password,
+      name: userData.name
+    };
+    setUsers([...users, newUser]);
     setUser(userData);
     setIsAuthenticated(true);
   };
@@ -431,12 +446,23 @@ function App() {
     setIsAuthenticated(false);
   };
 
+  // Pass users array to Login component for validation
+  const loginProps = {
+    onLogin: handleLogin,
+    users: users
+  };
+
+  // Pass password to Signup component
+  const signupProps = {
+    onSignup: handleSignup
+  };
+
   if (!isAuthenticated) {
     return (
       <Router>
         <Routes>
-          <Route path="/login" element={<Login onLogin={handleLogin} />} />
-          <Route path="/signup" element={<Signup onSignup={handleSignup} />} />
+          <Route path="/login" element={<Login {...loginProps} />} />
+          <Route path="/signup" element={<Signup {...signupProps} />} />
           <Route path="*" element={<Navigate to="/signup" replace />} />
         </Routes>
       </Router>
