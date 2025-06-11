@@ -88,12 +88,17 @@ function AppContent() {
 }
 
 function App() {
+  console.log('App component rendering');
   return (
-    <Router>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </Router>
+    <div style={{ padding: '20px', backgroundColor: 'red', color: 'white', minHeight: '100vh' }}>
+      <h1>TEST - App is rendering!</h1>
+      <p>If you can see this, React is working.</p>
+      <Router>
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </Router>
+    </div>
   );
 }
 

@@ -1,29 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import './index.css';
+// import './index.css';
 
-// Add error handling for the initial render
-const renderApp = () => {
-  const root = document.getElementById('root');
-  
-  if (!root) {
-    console.error('Root element not found!');
-    return;
-  }
+console.log('main.jsx: Starting application');
 
+const root = document.getElementById('root');
+
+if (!root) {
+  console.error('Root element not found!');
+} else {
   try {
     console.log('Starting app render...');
     
-    const app = (
+    const reactRoot = ReactDOM.createRoot(root);
+    reactRoot.render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
-
-    // Create root and render
-    const reactRoot = ReactDOM.createRoot(root);
-    reactRoot.render(app);
     
     console.log('App rendered successfully');
   } catch (error) {
@@ -70,7 +65,7 @@ const renderApp = () => {
       </div>
     `;
   }
-};
+}
 
 // Add window error handlers
 window.onerror = function(message, source, lineno, colno, error) {
@@ -81,9 +76,6 @@ window.onerror = function(message, source, lineno, colno, error) {
 window.onunhandledrejection = function(event) {
   console.error('Unhandled promise rejection:', event.reason);
 };
-
-// Initialize the app
-renderApp();
 
 // Error Boundary Component
 class ErrorBoundary extends React.Component {
