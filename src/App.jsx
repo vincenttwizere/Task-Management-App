@@ -93,11 +93,22 @@ function App() {
     <div style={{ padding: '20px', backgroundColor: 'red', color: 'white', minHeight: '100vh' }}>
       <h1>TEST - App is rendering!</h1>
       <p>If you can see this, React is working.</p>
+      <p>Current time: {new Date().toLocaleTimeString()}</p>
+      
+      {/* Temporarily bypass authentication for testing */}
+      <div style={{ marginTop: '20px', padding: '20px', backgroundColor: 'blue' }}>
+        <h2>Simple Test - No Auth</h2>
+        <p>This should show if basic React is working.</p>
+      </div>
+      
+      {/* Original app (commented out for testing) */}
+      {/*
       <Router>
         <AuthProvider>
           <AppContent />
         </AuthProvider>
       </Router>
+      */}
     </div>
   );
 }
