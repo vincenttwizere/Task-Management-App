@@ -6,7 +6,6 @@ import {
   ChartBarIcon,
   FlagIcon,
   FolderIcon,
-  UserGroupIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from '@heroicons/react/24/outline';
