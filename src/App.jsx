@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import {
   HomeIcon,
@@ -11,7 +11,275 @@ import {
   UserIcon,
   LockClosedIcon,
   EnvelopeIcon,
+  PlusIcon,
+  BellIcon,
+  XMarkIcon,
+  CheckIcon,
+  ClockIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
+
+// Notification Component
+function Notification({ notification, onDismiss }) {
+  const getIcon = (type) => {
+    switch (type) {
+      case 'success': return <CheckIcon className="w-5 h-5 text-green-500" />;
+      case 'warning': return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />;
+      case 'error': return <XMarkIcon className="w-5 h-5 text-red-500" />;
+      default: return <BellIcon className="w-5 h-5 text-blue-500" />;
+    }
+  };
+
+  const getBgColor = (type) => {
+    switch (type) {
+      case 'success': return 'bg-green-50 border-green-200';
+      case 'warning': return 'bg-yellow-50 border-yellow-200';
+      case 'error': return 'bg-red-50 border-red-200';
+      default: return 'bg-blue-50 border-blue-200';
+    }
+  };
+
+  return (
+    <div className={`${getBgColor(notification.type)} border rounded-lg p-4 mb-3 flex items-start justify-between`}>
+      <div className="flex items-start space-x-3">
+        {getIcon(notification.type)}
+        <div>
+          <h4 className="font-medium text-gray-900">{notification.title}</h4>
+          <p className="text-sm text-gray-600">{notification.message}</p>
+        </div>
+      </div>
+      <button
+        onClick={() => onDismiss(notification.id)}
+        className="text-gray-400 hover:text-gray-600"
+      >
+        <XMarkIcon className="w-4 h-4" />
+      </button>
+    </div>
+  );
+}
+
+// Task Creation Modal
+function TaskModal({ isOpen, onClose, onSave, projects }) {
+  const [formData, setFormData] = useState({
+    title: '',
+    description: '',
+    priority: 'medium',
+    dueDate: '',
+    projectId: '',
+    status: 'pending'
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.title.trim()) return;
+    
+    onSave({
+      id: Date.now(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      completed: false
+    });
+    
+    setFormData({
+      title: '',
+      description: '',
+      priority: 'medium',
+      dueDate: '',
+      projectId: '',
+      status: 'pending'
+    });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Create New Task</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => setFormData({...formData, title: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter task title"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter task description"
+              rows="3"
+            />
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <select
+                value={formData.priority}
+                onChange={(e) => setFormData({...formData, priority: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <input
+                type="date"
+                value={formData.dueDate}
+                onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+            <select
+              value={formData.projectId}
+              onChange={(e) => setFormData({...formData, projectId: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">No Project</option>
+              {projects.map(project => (
+                <option key={project.id} value={project.id}>{project.name}</option>
+              ))}
+            </select>
+          </div>
+          
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Create Task
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// Project Creation Modal
+function ProjectModal({ isOpen, onClose, onSave }) {
+  const [formData, setFormData] = useState({
+    name: '',
+    description: '',
+    color: '#3B82F6'
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name.trim()) return;
+    
+    onSave({
+      id: Date.now(),
+      ...formData,
+      createdAt: new Date().toISOString(),
+      tasks: []
+    });
+    
+    setFormData({
+      name: '',
+      description: '',
+      color: '#3B82F6'
+    });
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold">Create New Project</h3>
+          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+            <XMarkIcon className="w-6 h-6" />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+            <input
+              type="text"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter project name"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => setFormData({...formData, description: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter project description"
+              rows="3"
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
+            <input
+              type="color"
+              value={formData.color}
+              onChange={(e) => setFormData({...formData, color: e.target.value})}
+              className="w-full h-10 border border-gray-300 rounded-md"
+            />
+          </div>
+          
+          <div className="flex space-x-3 pt-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Create Project
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
 
 // Combined Auth Page Component
 function AuthPage({ onLogin, onSignup, users }) {
@@ -222,58 +490,241 @@ function AuthPage({ onLogin, onSignup, users }) {
   );
 }
 
-// Dashboard Component
-function Dashboard() {
+// Enhanced Dashboard Component
+function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
+  const completedTasks = tasks.filter(task => task.completed);
+  const pendingTasks = tasks.filter(task => !task.completed);
+  const overdueTasks = tasks.filter(task => 
+    !task.completed && task.dueDate && new Date(task.dueDate) < new Date()
+  );
+
+  const recentTasks = tasks
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    .slice(0, 5);
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900">Total Tasks</h3>
-          <p className="text-3xl font-bold text-blue-600">24</p>
+          <p className="text-3xl font-bold text-blue-600">{tasks.length}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-          <p className="text-3xl font-bold text-green-600">18</p>
+          <p className="text-3xl font-bold text-green-600">{completedTasks.length}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
-          <p className="text-3xl font-bold text-yellow-600">6</p>
+          <p className="text-3xl font-bold text-yellow-600">{pendingTasks.length}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <h3 className="text-lg font-semibold text-gray-900">Projects</h3>
-          <p className="text-3xl font-bold text-purple-600">4</p>
+          <p className="text-3xl font-bold text-purple-600">{projects.length}</p>
         </div>
       </div>
+
+      {/* Recent Tasks */}
+      <div className="bg-white rounded-lg shadow p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Tasks</h2>
+        <div className="space-y-3">
+          {recentTasks.length > 0 ? (
+            recentTasks.map(task => (
+              <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => onTaskToggle(task.id)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
+                      task.completed 
+                        ? 'bg-green-500 border-green-500 text-white' 
+                        : 'border-gray-300 hover:border-green-500'
+                    }`}
+                  >
+                    {task.completed && <CheckIcon className="w-3 h-3" />}
+                  </button>
+                  <div>
+                    <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                      {task.title}
+                    </h3>
+                    <p className="text-sm text-gray-500">{task.description}</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className={`px-2 py-1 text-xs font-medium rounded ${
+                    task.priority === 'high' ? 'bg-red-100 text-red-800' :
+                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-green-100 text-green-800'
+                  }`}>
+                    {task.priority}
+                  </span>
+                  {task.dueDate && (
+                    <span className="text-sm text-gray-500">
+                      {new Date(task.dueDate).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500 text-center py-4">No tasks yet. Create your first task!</p>
+          )}
+        </div>
+      </div>
+
+      {/* Overdue Tasks Warning */}
+      {overdueTasks.length > 0 && (
+        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="flex items-center space-x-2">
+            <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />
+            <h3 className="font-medium text-red-900">Overdue Tasks</h3>
+          </div>
+          <p className="text-sm text-red-700 mt-1">
+            You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
-// Tasks Component
-function Tasks() {
+// Enhanced Tasks Component
+function Tasks({ tasks, projects, onTaskToggle, onTaskDelete, onTaskEdit }) {
+  const [filter, setFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredTasks = tasks.filter(task => {
+    const matchesFilter = 
+      filter === 'all' ||
+      (filter === 'completed' && task.completed) ||
+      (filter === 'pending' && !task.completed) ||
+      (filter === 'overdue' && !task.completed && task.dueDate && new Date(task.dueDate) < new Date());
+    
+    const matchesSearch = task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         task.description.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return matchesFilter && matchesSearch;
+  });
+
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case 'high': return 'bg-red-100 text-red-800';
+      case 'medium': return 'bg-yellow-100 text-yellow-800';
+      case 'low': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getProjectName = (projectId) => {
+    const project = projects.find(p => p.id === projectId);
+    return project ? project.name : 'No Project';
+  };
+
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Tasks</h1>
-      <div className="bg-white rounded-lg shadow">
-        <div className="p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Tasks</h2>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded">
-              <div>
-                <h3 className="font-medium text-gray-900">Complete project proposal</h3>
-                <p className="text-sm text-gray-500">Due: Today</p>
-              </div>
-              <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded">High Priority</span>
-            </div>
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded">
-              <div>
-                <h3 className="font-medium text-gray-900">Review code changes</h3>
-                <p className="text-sm text-gray-500">Due: Tomorrow</p>
-              </div>
-              <span className="px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded">Medium Priority</span>
-            </div>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
+      </div>
+
+      {/* Filters and Search */}
+      <div className="bg-white rounded-lg shadow p-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex-1">
+            <input
+              type="text"
+              placeholder="Search tasks..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+          <div className="flex space-x-2">
+            <select
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="all">All Tasks</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="overdue">Overdue</option>
+            </select>
           </div>
         </div>
+      </div>
+
+      {/* Tasks List */}
+      <div className="space-y-3">
+        {filteredTasks.length > 0 ? (
+          filteredTasks.map(task => (
+            <div key={task.id} className="bg-white rounded-lg shadow p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start space-x-3 flex-1">
+                  <button
+                    onClick={() => onTaskToggle(task.id)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-1 ${
+                      task.completed 
+                        ? 'bg-green-500 border-green-500 text-white' 
+                        : 'border-gray-300 hover:border-green-500'
+                    }`}
+                  >
+                    {task.completed && <CheckIcon className="w-3 h-3" />}
+                  </button>
+                  <div className="flex-1">
+                    <h3 className={`font-medium text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                      {task.title}
+                    </h3>
+                    {task.description && (
+                      <p className={`text-gray-600 mt-1 ${task.completed ? 'line-through' : ''}`}>
+                        {task.description}
+                      </p>
+                    )}
+                    <div className="flex items-center space-x-4 mt-2">
+                      <span className={`px-2 py-1 text-xs font-medium rounded ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
+                      {task.projectId && (
+                        <span className="text-sm text-gray-500">
+                          Project: {getProjectName(task.projectId)}
+                        </span>
+                      )}
+                      {task.dueDate && (
+                        <div className="flex items-center space-x-1 text-sm text-gray-500">
+                          <ClockIcon className="w-4 h-4" />
+                          <span>
+                            {new Date(task.dueDate).toLocaleDateString()}
+                            {!task.completed && new Date(task.dueDate) < new Date() && (
+                              <span className="text-red-500 ml-1">(Overdue)</span>
+                            )}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => onTaskEdit(task)}
+                    className="text-blue-600 hover:text-blue-800 text-sm"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => onTaskDelete(task.id)}
+                    className="text-red-600 hover:text-red-800 text-sm"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No tasks found.</p>
+          </div>
+        )}
       </div>
     </div>
   );
