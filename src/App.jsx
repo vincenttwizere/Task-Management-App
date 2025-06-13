@@ -13,119 +13,9 @@ import {
   EnvelopeIcon,
 } from '@heroicons/react/24/outline';
 
-// Login Component
-function Login({ onLogin, users }) {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
-  const [error, setError] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!formData.email || !formData.password) {
-      setError('Please fill in all fields');
-      return;
-    }
-    
-    // Debug: Log the users array and attempted login
-    console.log('Available users:', users);
-    console.log('Attempting login with:', formData.email);
-    
-    // Simple validation - in real app, this would connect to backend
-    const user = users.find(u => u.email === formData.email && u.password === formData.password);
-    
-    if (user) {
-      console.log('Login successful for:', user.name);
-      onLogin(user);
-    } else {
-      console.log('Login failed - user not found or password incorrect');
-      setError('Invalid credentials. Use demo@taskflow.com / password or create a new account.');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-center text-blue-600">TaskFlow</h1>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
-          </h2>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative">
-                <EnvelopeIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-            </div>
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <LockClosedIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                />
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              Sign in
-            </button>
-          </div>
-
-          <div className="text-center space-y-2">
-            <p className="text-sm text-gray-600">
-              Demo credentials: demo@taskflow.com / password
-            </p>
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <a href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign up here
-              </a>
-            </p>
-          </div>
-        </form>
-      </div>
-    </div>
-  );
-}
-
-// Signup Component
-function Signup({ onSignup }) {
+// Combined Auth Page Component
+function AuthPage({ onLogin, onSignup, users }) {
+  const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -136,23 +26,68 @@ function Signup({ onSignup }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-      setError('Please fill in all fields');
-      return;
+    setError('');
+
+    if (isLogin) {
+      // Login logic
+      if (!formData.email || !formData.password) {
+        setError('Please fill in all fields');
+        return;
+      }
+      
+      // Debug: Log the users array and attempted login
+      console.log('Available users:', users);
+      console.log('Attempting login with:', formData.email);
+      
+      // Simple validation - in real app, this would connect to backend
+      const user = users.find(u => u.email === formData.email && u.password === formData.password);
+      
+      if (user) {
+        console.log('Login successful for:', user.name);
+        onLogin(user);
+      } else {
+        console.log('Login failed - user not found or password incorrect');
+        setError('Invalid credentials. Use demo@taskflow.com / password or create a new account.');
+      }
+    } else {
+      // Signup logic
+      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+        setError('Please fill in all fields');
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match');
+        return;
+      }
+      if (formData.password.length < 6) {
+        setError('Password must be at least 6 characters');
+        return;
+      }
+      
+      // Check if user already exists
+      const existingUser = users.find(u => u.email === formData.email);
+      if (existingUser) {
+        setError('An account with this email already exists. Please login instead.');
+        return;
+      }
+      
+      // Pass the password along with other user data
+      onSignup({ 
+        email: formData.email, 
+        name: formData.name,
+        password: formData.password
+      });
     }
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-    // Pass the password along with other user data
-    onSignup({ 
-      email: formData.email, 
-      name: formData.name,
-      password: formData.password
+  };
+
+  const toggleMode = () => {
+    setIsLogin(!isLogin);
+    setError('');
+    setFormData({
+      name: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
     });
   };
 
@@ -162,34 +97,39 @@ function Signup({ onSignup }) {
         <div>
           <h1 className="text-3xl font-bold text-center text-blue-600">TaskFlow</h1>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            {isLogin ? 'Sign in to your account' : 'Create your account'}
           </h2>
         </div>
+        
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
               {error}
             </div>
           )}
+          
           <div className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <div className="mt-1 relative">
-                <UserIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="name"
-                  name="name"
-                  type="text"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your full name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
+            {!isLogin && (
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  Full Name
+                </label>
+                <div className="mt-1 relative">
+                  <UserIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required={!isLogin}
+                    className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
+            )}
+            
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
@@ -208,6 +148,7 @@ function Signup({ onSignup }) {
                 />
               </div>
             </div>
+            
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
@@ -226,24 +167,27 @@ function Signup({ onSignup }) {
                 />
               </div>
             </div>
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                Confirm Password
-              </label>
-              <div className="mt-1 relative">
-                <LockClosedIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Confirm your password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                />
+            
+            {!isLogin && (
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+                  Confirm Password
+                </label>
+                <div className="mt-1 relative">
+                  <LockClosedIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required={!isLogin}
+                    className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div>
@@ -251,16 +195,25 @@ function Signup({ onSignup }) {
               type="submit"
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
             >
-              Create Account
+              {isLogin ? 'Sign in' : 'Create Account'}
             </button>
           </div>
 
-          <div className="text-center">
+          <div className="text-center space-y-2">
+            {isLogin && (
+              <p className="text-sm text-gray-600">
+                Demo credentials: demo@taskflow.com / password
+              </p>
+            )}
             <p className="text-sm text-gray-600">
-              Already have an account?{' '}
-              <a href="/login" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign in here
-              </a>
+              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
+              <button
+                type="button"
+                onClick={toggleMode}
+                className="font-medium text-blue-600 hover:text-blue-500"
+              >
+                {isLogin ? 'Sign up here' : 'Sign in here'}
+              </button>
             </p>
           </div>
         </form>
@@ -463,24 +416,12 @@ function App() {
     setIsAuthenticated(false);
   };
 
-  // Pass users array to Login component for validation
-  const loginProps = {
-    onLogin: handleLogin,
-    users: users
-  };
-
-  // Pass password to Signup component
-  const signupProps = {
-    onSignup: handleSignup
-  };
-
   if (!isAuthenticated) {
     return (
       <Router>
         <Routes>
-          <Route path="/login" element={<Login {...loginProps} />} />
-          <Route path="/signup" element={<Signup {...signupProps} />} />
-          <Route path="*" element={<Navigate to="/signup" replace />} />
+          <Route path="/login" element={<AuthPage onLogin={handleLogin} onSignup={handleSignup} users={users} />} />
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </Router>
     );
