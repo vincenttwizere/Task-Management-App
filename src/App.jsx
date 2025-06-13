@@ -730,32 +730,77 @@ function Tasks({ tasks, projects, onTaskToggle, onTaskDelete, onTaskEdit }) {
   );
 }
 
-// Projects Component
-function Projects() {
+// Enhanced Projects Component
+function Projects({ projects, tasks, onProjectDelete, onProjectEdit }) {
+  const getProjectStats = (projectId) => {
+    const projectTasks = tasks.filter(task => task.projectId === projectId);
+    const completed = projectTasks.filter(task => task.completed).length;
+    const total = projectTasks.length;
+    return { completed, total, percentage: total > 0 ? Math.round((completed / total) * 100) : 0 };
+  };
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold text-gray-900 mb-6">Projects</h1>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Website Redesign</h3>
-          <p className="text-gray-600 mb-4">Redesign the company website with modern UI/UX</p>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Progress: 75%</span>
-            <div className="w-16 bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
-            </div>
+        {projects.length > 0 ? (
+          projects.map(project => {
+            const stats = getProjectStats(project.id);
+            return (
+              <div key={project.id} className="bg-white rounded-lg shadow p-6">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: project.color }}
+                    ></div>
+                    <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+                  </div>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => onProjectEdit(project)}
+                      className="text-blue-600 hover:text-blue-800 text-sm"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => onProjectDelete(project.id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+                
+                {project.description && (
+                  <p className="text-gray-600 mb-4">{project.description}</p>
+                )}
+                
+                <div className="space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-500">Progress</span>
+                    <span className="font-medium">{stats.completed}/{stats.total} tasks</span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div 
+                      className="h-2 rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${stats.percentage}%`,
+                        backgroundColor: project.color 
+                      }}
+                    ></div>
+                  </div>
+                  <p className="text-sm text-gray-500">{stats.percentage}% complete</p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <div className="col-span-full text-center py-8">
+            <p className="text-gray-500">No projects yet. Create your first project!</p>
           </div>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Mobile App</h3>
-          <p className="text-gray-600 mb-4">Develop a mobile app for iOS and Android</p>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-500">Progress: 45%</span>
-            <div className="w-16 bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '45%' }}></div>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -828,6 +873,64 @@ function App() {
     { email: 'demo@taskflow.com', password: 'password', name: 'Demo User' }
   ]);
 
+  // New state for enhanced functionality
+  const [tasks, setTasks] = useState([
+    {
+      id: 1,
+      title: 'Complete project proposal',
+      description: 'Finish the initial project proposal document',
+      priority: 'high',
+      dueDate: '2024-01-15',
+      projectId: 1,
+      status: 'pending',
+      completed: false,
+      createdAt: '2024-01-10T10:00:00Z'
+    },
+    {
+      id: 2,
+      title: 'Review code changes',
+      description: 'Review and approve recent code changes',
+      priority: 'medium',
+      dueDate: '2024-01-20',
+      projectId: 1,
+      status: 'pending',
+      completed: false,
+      createdAt: '2024-01-11T14:30:00Z'
+    }
+  ]);
+
+  const [projects, setProjects] = useState([
+    {
+      id: 1,
+      name: 'Website Redesign',
+      description: 'Complete redesign of the company website',
+      color: '#3B82F6',
+      createdAt: '2024-01-01T09:00:00Z'
+    },
+    {
+      id: 2,
+      name: 'Mobile App Development',
+      description: 'Develop a new mobile application',
+      color: '#10B981',
+      createdAt: '2024-01-05T11:00:00Z'
+    }
+  ]);
+
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      type: 'info',
+      title: 'Welcome to TaskFlow!',
+      message: 'Start by creating your first task or project.',
+      timestamp: new Date().toISOString()
+    }
+  ]);
+
+  const [showTaskModal, setShowTaskModal] = useState(false);
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingTask, setEditingTask] = useState(null);
+  const [editingProject, setEditingProject] = useState(null);
+
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
     { name: 'Tasks', href: '/tasks', icon: FlagIcon },
@@ -836,35 +939,92 @@ function App() {
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   ];
 
+  // Task management functions
+  const handleCreateTask = (taskData) => {
+    setTasks(prev => [...prev, taskData]);
+    addNotification('success', 'Task Created', 'New task has been created successfully!');
+  };
+
+  const handleTaskToggle = (taskId) => {
+    setTasks(prev => prev.map(task => 
+      task.id === taskId 
+        ? { ...task, completed: !task.completed }
+        : task
+    ));
+  };
+
+  const handleTaskDelete = (taskId) => {
+    setTasks(prev => prev.filter(task => task.id !== taskId));
+    addNotification('info', 'Task Deleted', 'Task has been removed.');
+  };
+
+  const handleTaskEdit = (task) => {
+    setEditingTask(task);
+    setShowTaskModal(true);
+  };
+
+  // Project management functions
+  const handleCreateProject = (projectData) => {
+    setProjects(prev => [...prev, projectData]);
+    addNotification('success', 'Project Created', 'New project has been created successfully!');
+  };
+
+  const handleProjectDelete = (projectId) => {
+    setProjects(prev => prev.filter(project => project.id !== projectId));
+    // Remove project from tasks
+    setTasks(prev => prev.map(task => 
+      task.projectId === projectId 
+        ? { ...task, projectId: '' }
+        : task
+    ));
+    addNotification('info', 'Project Deleted', 'Project has been removed.');
+  };
+
+  const handleProjectEdit = (project) => {
+    setEditingProject(project);
+    setShowProjectModal(true);
+  };
+
+  // Notification functions
+  const addNotification = (type, title, message) => {
+    const newNotification = {
+      id: Date.now(),
+      type,
+      title,
+      message,
+      timestamp: new Date().toISOString()
+    };
+    setNotifications(prev => [newNotification, ...prev]);
+  };
+
+  const dismissNotification = (notificationId) => {
+    setNotifications(prev => prev.filter(n => n.id !== notificationId));
+  };
+
+  // Authentication functions
   const handleLogin = (userData) => {
     setUser(userData);
     setIsAuthenticated(true);
+    addNotification('success', 'Welcome Back!', `Hello ${userData.name}, welcome to TaskFlow!`);
   };
 
   const handleSignup = (userData) => {
-    // Add the new user to the users array
     const newUser = {
       email: userData.email,
       password: userData.password,
       name: userData.name
     };
     
-    console.log('Creating new user:', newUser);
-    console.log('Current users before adding:', users);
-    
-    setUsers(prevUsers => {
-      const updatedUsers = [...prevUsers, newUser];
-      console.log('Updated users array:', updatedUsers);
-      return updatedUsers;
-    });
-    
+    setUsers(prevUsers => [...prevUsers, newUser]);
     setUser(userData);
     setIsAuthenticated(true);
+    addNotification('success', 'Account Created', `Welcome ${userData.name}! Your account has been created successfully.`);
   };
 
   const handleLogout = () => {
     setUser(null);
     setIsAuthenticated(false);
+    setNotifications([]);
   };
 
   if (!isAuthenticated) {
@@ -923,6 +1083,34 @@ function App() {
             <div className="flex items-center justify-between h-16 px-6">
               <h1 className="text-2xl font-semibold text-gray-900">TaskFlow</h1>
               <div className="flex items-center space-x-4">
+                {/* Quick Actions */}
+                <button
+                  onClick={() => setShowTaskModal(true)}
+                  className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>New Task</span>
+                </button>
+                <button
+                  onClick={() => setShowProjectModal(true)}
+                  className="flex items-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                >
+                  <PlusIcon className="w-4 h-4" />
+                  <span>New Project</span>
+                </button>
+                
+                {/* Notifications */}
+                <div className="relative">
+                  <button className="relative p-2 text-gray-600 hover:text-gray-800">
+                    <BellIcon className="w-6 h-6" />
+                    {notifications.length > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {notifications.length}
+                      </span>
+                    )}
+                  </button>
+                </div>
+                
                 <span className="text-sm text-gray-600">Welcome, {user?.name}!</span>
                 <button
                   onClick={handleLogout}
@@ -934,13 +1122,66 @@ function App() {
             </div>
           </header>
 
+          {/* Notifications Panel */}
+          {notifications.length > 0 && (
+            <div className="bg-white border-b border-gray-200 p-4 max-h-64 overflow-y-auto">
+              <h3 className="text-sm font-medium text-gray-900 mb-3">Notifications</h3>
+              <div className="space-y-2">
+                {notifications.slice(0, 3).map(notification => (
+                  <Notification
+                    key={notification.id}
+                    notification={notification}
+                    onDismiss={dismissNotification}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto">
             <Routes>
-              <Route path="/" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Dashboard /></ProtectedRoute>} />
-              <Route path="/dashboard" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Dashboard /></ProtectedRoute>} />
-              <Route path="/tasks" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Tasks /></ProtectedRoute>} />
-              <Route path="/projects" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Projects /></ProtectedRoute>} />
+              <Route path="/" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Dashboard 
+                    tasks={tasks} 
+                    projects={projects} 
+                    onTaskToggle={handleTaskToggle}
+                    onTaskDelete={handleTaskDelete}
+                  />
+                </ProtectedRoute>
+              } />
+              <Route path="/dashboard" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Dashboard 
+                    tasks={tasks} 
+                    projects={projects} 
+                    onTaskToggle={handleTaskToggle}
+                    onTaskDelete={handleTaskDelete}
+                  />
+                </ProtectedRoute>
+              } />
+              <Route path="/tasks" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Tasks 
+                    tasks={tasks} 
+                    projects={projects}
+                    onTaskToggle={handleTaskToggle}
+                    onTaskDelete={handleTaskDelete}
+                    onTaskEdit={handleTaskEdit}
+                  />
+                </ProtectedRoute>
+              } />
+              <Route path="/projects" element={
+                <ProtectedRoute isAuthenticated={isAuthenticated}>
+                  <Projects 
+                    projects={projects}
+                    tasks={tasks}
+                    onProjectDelete={handleProjectDelete}
+                    onProjectEdit={handleProjectEdit}
+                  />
+                </ProtectedRoute>
+              } />
               <Route path="/calendar" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Calendar /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Analytics /></ProtectedRoute>} />
               <Route path="*" element={<Navigate to="/" replace />} />
@@ -948,6 +1189,26 @@ function App() {
           </main>
         </div>
       </div>
+
+      {/* Modals */}
+      <TaskModal
+        isOpen={showTaskModal}
+        onClose={() => {
+          setShowTaskModal(false);
+          setEditingTask(null);
+        }}
+        onSave={handleCreateTask}
+        projects={projects}
+      />
+      
+      <ProjectModal
+        isOpen={showProjectModal}
+        onClose={() => {
+          setShowProjectModal(false);
+          setEditingProject(null);
+        }}
+        onSave={handleCreateProject}
+      />
     </Router>
   );
 }
