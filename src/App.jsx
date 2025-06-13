@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import {
   HomeIcon,
   CalendarIcon,
@@ -453,14 +453,14 @@ function App() {
             {/* Navigation */}
             <nav className="flex-1 px-2 py-4 space-y-1">
               {navigation.map((item) => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className="flex items-center px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50"
                 >
                   <item.icon className="mr-3 h-5 w-5 text-gray-400" />
                   {!isSidebarCollapsed && <span>{item.name}</span>}
-                </a>
+                </Link>
               ))}
             </nav>
           </div>
@@ -492,6 +492,7 @@ function App() {
               <Route path="/projects" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Projects /></ProtectedRoute>} />
               <Route path="/calendar" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Calendar /></ProtectedRoute>} />
               <Route path="/analytics" element={<ProtectedRoute isAuthenticated={isAuthenticated}><Analytics /></ProtectedRoute>} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
         </div>
