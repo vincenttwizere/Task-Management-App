@@ -930,6 +930,7 @@ function App() {
   const [showProjectModal, setShowProjectModal] = useState(false);
   const [editingTask, setEditingTask] = useState(null);
   const [editingProject, setEditingProject] = useState(null);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const navigation = [
     { name: 'Dashboard', href: '/', icon: HomeIcon },
@@ -938,6 +939,20 @@ function App() {
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   ];
+
+  // Close notifications dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showNotifications && !event.target.closest('.notifications-dropdown')) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showNotifications]);
 
   // Task management functions
   const handleCreateTask = (taskData) => {
@@ -1101,7 +1116,10 @@ function App() {
                 
                 {/* Notifications */}
                 <div className="relative">
-                  <button className="relative p-2 text-gray-600 hover:text-gray-800">
+                  <button 
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-2 text-gray-600 hover:text-gray-800"
+                  >
                     <BellIcon className="w-6 h-6" />
                     {notifications.length > 0 && (
                       <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -1109,6 +1127,41 @@ function App() {
                       </span>
                     )}
                   </button>
+                  
+                  {/* Notifications Dropdown */}
+                  {showNotifications && (
+                    <div className="notifications-dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
+                      <div className="p-4 border-b border-gray-200">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                          <button
+                            onClick={() => setShowNotifications(false)}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            <XMarkIcon className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="p-2">
+                        {notifications.length > 0 ? (
+                          <div className="space-y-2">
+                            {notifications.map(notification => (
+                              <Notification
+                                key={notification.id}
+                                notification={notification}
+                                onDismiss={dismissNotification}
+                              />
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-center py-8">
+                            <BellIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                            <p className="text-gray-500">No notifications</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <span className="text-sm text-gray-600">Welcome, {user?.name}!</span>
@@ -1121,22 +1174,6 @@ function App() {
               </div>
             </div>
           </header>
-
-          {/* Notifications Panel */}
-          {notifications.length > 0 && (
-            <div className="bg-white border-b border-gray-200 p-4 max-h-64 overflow-y-auto">
-              <h3 className="text-sm font-medium text-gray-900 mb-3">Notifications</h3>
-              <div className="space-y-2">
-                {notifications.slice(0, 3).map(notification => (
-                  <Notification
-                    key={notification.id}
-                    notification={notification}
-                    onDismiss={dismissNotification}
-                  />
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Main Content */}
           <main className="flex-1 overflow-y-auto">
