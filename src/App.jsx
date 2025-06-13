@@ -27,12 +27,20 @@ function Login({ onLogin, users }) {
       setError('Please fill in all fields');
       return;
     }
+    
+    // Debug: Log the users array and attempted login
+    console.log('Available users:', users);
+    console.log('Attempting login with:', formData.email);
+    
     // Simple validation - in real app, this would connect to backend
     const user = users.find(u => u.email === formData.email && u.password === formData.password);
+    
     if (user) {
+      console.log('Login successful for:', user.name);
       onLogin(user);
     } else {
-      setError('Invalid credentials. Use demo@taskflow.com / password');
+      console.log('Login failed - user not found or password incorrect');
+      setError('Invalid credentials. Use demo@taskflow.com / password or create a new account.');
     }
   };
 
@@ -436,7 +444,16 @@ function App() {
       password: userData.password,
       name: userData.name
     };
-    setUsers([...users, newUser]);
+    
+    console.log('Creating new user:', newUser);
+    console.log('Current users before adding:', users);
+    
+    setUsers(prevUsers => {
+      const updatedUsers = [...prevUsers, newUser];
+      console.log('Updated users array:', updatedUsers);
+      return updatedUsers;
+    });
+    
     setUser(userData);
     setIsAuthenticated(true);
   };
