@@ -589,10 +589,10 @@ function Tasks({ tasks, projects, onTaskToggle, onTaskDelete, onTaskEdit }) {
 
   const getPriorityColor = (priority) => {
     switch (priority) {
-      case 'high': return 'bg-red-100 text-red-800';
-      case 'medium': return 'bg-yellow-100 text-yellow-800';
-      case 'low': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'high': return 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800';
+      case 'medium': return 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800';
+      case 'low': return 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800';
+      default: return 'bg-gradient-to-r from-gray-100 to-slate-100 text-gray-800';
     }
   };
 
@@ -602,109 +602,115 @@ function Tasks({ tasks, projects, onTaskToggle, onTaskDelete, onTaskEdit }) {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Tasks</h1>
-      </div>
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Tasks</h1>
+          <p className="text-gray-600 text-lg">Manage and organize your tasks efficiently.</p>
+        </div>
 
-      {/* Filters and Search */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="flex-1">
-            <input
-              type="text"
-              placeholder="Search tasks..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div className="flex space-x-2">
-            <select
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">All Tasks</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
-              <option value="overdue">Overdue</option>
-            </select>
+        {/* Enhanced Filters and Search */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 mb-8">
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex-1">
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              />
+            </div>
+            <div className="flex space-x-2">
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              >
+                <option value="all">All Tasks</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Completed</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Tasks List */}
-      <div className="space-y-3">
-        {filteredTasks.length > 0 ? (
-          filteredTasks.map(task => (
-            <div key={task.id} className="bg-white rounded-lg shadow p-4">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start space-x-3 flex-1">
-                  <button
-                    onClick={() => onTaskToggle(task.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-1 ${
-                      task.completed 
-                        ? 'bg-green-500 border-green-500 text-white' 
-                        : 'border-gray-300 hover:border-green-500'
-                    }`}
-                  >
-                    {task.completed && <CheckIcon className="w-3 h-3" />}
-                  </button>
-                  <div className="flex-1">
-                    <h3 className={`font-medium text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                      {task.title}
-                    </h3>
-                    {task.description && (
-                      <p className={`text-gray-600 mt-1 ${task.completed ? 'line-through' : ''}`}>
-                        {task.description}
-                      </p>
-                    )}
-                    <div className="flex items-center space-x-4 mt-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                      {task.projectId && (
-                        <span className="text-sm text-gray-500">
-                          Project: {getProjectName(task.projectId)}
+        {/* Enhanced Tasks List */}
+        <div className="space-y-4">
+          {filteredTasks.length > 0 ? (
+            filteredTasks.map(task => (
+              <div key={task.id} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02]">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start space-x-4 flex-1">
+                    <button
+                      onClick={() => onTaskToggle(task.id)}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center mt-1 transition-all duration-200 ${
+                        task.completed 
+                          ? 'bg-gradient-to-r from-emerald-500 to-green-500 border-emerald-500 text-white shadow-lg' 
+                          : 'border-gray-300 hover:border-emerald-500 hover:shadow-md'
+                      }`}
+                    >
+                      {task.completed && <CheckIcon className="w-4 h-4" />}
+                    </button>
+                    <div className="flex-1">
+                      <h3 className={`font-bold text-xl mb-2 ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                        {task.title}
+                      </h3>
+                      {task.description && (
+                        <p className={`text-gray-600 mb-3 leading-relaxed ${task.completed ? 'line-through' : ''}`}>
+                          {task.description}
+                        </p>
+                      )}
+                      <div className="flex items-center space-x-4">
+                        <span className={`px-3 py-1 text-sm font-semibold rounded-full ${getPriorityColor(task.priority)}`}>
+                          {task.priority}
                         </span>
-                      )}
-                      {task.dueDate && (
-                        <div className="flex items-center space-x-1 text-sm text-gray-500">
-                          <ClockIcon className="w-4 h-4" />
-                          <span>
-                            {new Date(task.dueDate).toLocaleDateString()}
-                            {!task.completed && new Date(task.dueDate) < new Date() && (
-                              <span className="text-red-500 ml-1">(Overdue)</span>
-                            )}
+                        {task.projectId && (
+                          <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                            Project: {getProjectName(task.projectId)}
                           </span>
-                        </div>
-                      )}
+                        )}
+                        {task.dueDate && (
+                          <div className="flex items-center space-x-1 text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                            <ClockIcon className="w-4 h-4" />
+                            <span>{new Date(task.dueDate).toLocaleDateString()}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => onTaskEdit(task)}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => onTaskDelete(task.id)}
-                    className="text-red-600 hover:text-red-800 text-sm"
-                  >
-                    Delete
-                  </button>
+                  <div className="flex items-center space-x-2 ml-4">
+                    <button
+                      onClick={() => onTaskEdit(task)}
+                      className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => onTaskDelete(task.id)}
+                      className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
               </div>
+            ))
+          ) : (
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-12 text-center">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <FlagIcon className="w-10 h-10 text-blue-600" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No tasks found</h3>
+              <p className="text-gray-600">Try adjusting your search or filter criteria.</p>
             </div>
-          ))
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-500">No tasks found.</p>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1035,18 +1041,23 @@ function App() {
 
   return (
     <Router>
-      <div className="flex h-screen bg-gray-100">
-        {/* Sidebar */}
-        <div className={`${isSidebarCollapsed ? 'w-20' : 'w-64'} bg-white border-r border-gray-200 transition-all duration-300`}>
+      <div className="flex h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+        {/* Enhanced Sidebar */}
+        <div className={`${isSidebarCollapsed ? 'w-20' : 'w-64'} bg-white/90 backdrop-blur-xl border-r border-white/20 shadow-xl transition-all duration-300`}>
           <div className="flex flex-col h-full">
-            {/* Logo */}
-            <div className="flex items-center justify-between h-16 px-4 border-b border-gray-200">
+            {/* Enhanced Logo */}
+            <div className="flex items-center justify-between h-16 px-4 border-b border-white/20">
               {!isSidebarCollapsed && (
-                <h1 className="text-xl font-bold text-blue-600">TaskFlow</h1>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl">
+                    <RocketLaunchIcon className="w-6 h-6 text-white" />
+                  </div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TaskFlow</h1>
+                </div>
               )}
               <button
                 onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-                className="p-1 rounded-lg hover:bg-gray-100"
+                className="p-2 rounded-xl hover:bg-gray-100/50 transition-all duration-200"
               >
                 {isSidebarCollapsed ? (
                   <ChevronRightIcon className="w-5 h-5 text-gray-500" />
@@ -1056,15 +1067,15 @@ function App() {
               </button>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-2 py-4 space-y-1">
+            {/* Enhanced Navigation */}
+            <nav className="flex-1 px-3 py-6 space-y-2">
               {navigation.map((item) => (
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="flex items-center px-2 py-2 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50"
+                  className="flex items-center px-3 py-3 text-sm font-semibold rounded-xl text-gray-600 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 hover:text-blue-600 transition-all duration-200 group"
                 >
-                  <item.icon className="mr-3 h-5 w-5 text-gray-400" />
+                  <item.icon className="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors duration-200" />
                   {!isSidebarCollapsed && <span>{item.name}</span>}
                 </Link>
               ))}
@@ -1073,58 +1084,58 @@ function App() {
         </div>
         
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Top Bar */}
-          <header className="bg-white border-b border-gray-200">
-            <div className="flex items-center justify-between h-16 px-6">
-              <h1 className="text-2xl font-semibold text-gray-900">TaskFlow</h1>
+          {/* Enhanced Top Bar */}
+          <header className="bg-white/90 backdrop-blur-xl border-b border-white/20 shadow-lg">
+            <div className="flex items-center justify-between h-16 px-8">
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">TaskFlow</h1>
               <div className="flex items-center space-x-4">
-                {/* Quick Actions */}
+                {/* Enhanced Quick Actions */}
                 <button
                   onClick={() => setShowTaskModal(true)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 text-sm font-semibold transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                 >
                   <PlusIcon className="w-4 h-4" />
                   <span>New Task</span>
                 </button>
                 <button
                   onClick={() => setShowProjectModal(true)}
-                  className="flex items-center space-x-2 px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+                  className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 text-sm font-semibold transition-all duration-200 hover:shadow-lg transform hover:scale-105"
                 >
                   <PlusIcon className="w-4 h-4" />
                   <span>New Project</span>
                 </button>
                 
-                {/* Notifications */}
+                {/* Enhanced Notifications */}
                 <div className="relative">
                   <button 
                     onClick={() => setShowNotifications(!showNotifications)}
-                    className="relative p-2 text-gray-600 hover:text-gray-800"
+                    className="relative p-3 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
                   >
                     <BellIcon className="w-6 h-6" />
                     {notifications.length > 0 && (
-                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      <span className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center font-semibold shadow-lg">
                         {notifications.length}
                       </span>
                     )}
                   </button>
                   
-                  {/* Notifications Dropdown */}
+                  {/* Enhanced Notifications Dropdown */}
                   {showNotifications && (
-                    <div className="notifications-dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-96 overflow-y-auto">
-                      <div className="p-4 border-b border-gray-200">
+                    <div className="notifications-dropdown absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 z-50 max-h-96 overflow-y-auto">
+                      <div className="p-6 border-b border-white/20">
                         <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
+                          <h3 className="text-lg font-bold text-gray-900">Notifications</h3>
                           <button
                             onClick={() => setShowNotifications(false)}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
                           >
                             <XMarkIcon className="w-5 h-5" />
                           </button>
                         </div>
                       </div>
-                      <div className="p-2">
+                      <div className="p-4">
                         {notifications.length > 0 ? (
-                          <div className="space-y-2">
+                          <div className="space-y-3">
                             {notifications.map(notification => (
                               <Notification
                                 key={notification.id}
@@ -1134,9 +1145,11 @@ function App() {
                             ))}
                           </div>
                         ) : (
-                          <div className="text-center py-8">
-                            <BellIcon className="w-12 h-12 text-gray-300 mx-auto mb-2" />
-                            <p className="text-gray-500">No notifications</p>
+                          <div className="text-center py-12">
+                            <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                              <BellIcon className="w-8 h-8 text-gray-400" />
+                            </div>
+                            <p className="text-gray-500 font-medium">No notifications</p>
                           </div>
                         )}
                       </div>
@@ -1144,13 +1157,18 @@ function App() {
                   )}
                 </div>
                 
-                <span className="text-sm text-gray-600">Welcome, {user?.name}!</span>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-red-600 hover:text-red-800"
-                >
-                  Logout
-                </button>
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-xl">
+                    <UserIcon className="w-5 h-5 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-semibold text-gray-700">Welcome, {user?.name}!</span>
+                  <button
+                    onClick={handleLogout}
+                    className="text-sm text-red-600 hover:text-red-800 font-medium hover:bg-red-50 px-3 py-1 rounded-lg transition-all duration-200"
+                  >
+                    Logout
+                  </button>
+                </div>
               </div>
             </div>
           </header>

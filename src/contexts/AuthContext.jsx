@@ -109,10 +109,10 @@ export function AuthProvider({ children }) {
   const value = {
     currentUser,
     loading,
-    // error,
-    // signup,
-    // login,
-    // logout,
+    error,
+    signup,
+    login,
+    logout,
   };
 
   return (
