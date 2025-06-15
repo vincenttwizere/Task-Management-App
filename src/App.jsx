@@ -726,92 +726,134 @@ function Projects({ projects, tasks, onProjectDelete, onProjectEdit }) {
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Projects</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {projects.length > 0 ? (
-          projects.map(project => {
-            const stats = getProjectStats(project.id);
-            return (
-              <div key={project.id} className="bg-white rounded-lg shadow p-6">
-                <div className="flex items-start justify-between mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div 
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: project.color }}
-                    ></div>
-                    <h3 className="text-lg font-semibold text-gray-900">{project.name}</h3>
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Projects</h1>
+          <p className="text-gray-600 text-lg">Organize your work into focused projects.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.length > 0 ? (
+            projects.map(project => {
+              const stats = getProjectStats(project.id);
+              return (
+                <div key={project.id} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+                  <div className="flex items-start justify-between mb-6">
+                    <div className="flex items-center space-x-3">
+                      <div 
+                        className="w-5 h-5 rounded-full shadow-lg"
+                        style={{ backgroundColor: project.color }}
+                      ></div>
+                      <h3 className="text-xl font-bold text-gray-900">{project.name}</h3>
+                    </div>
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => onProjectEdit(project)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => onProjectDelete(project.id)}
+                        className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={() => onProjectEdit(project)}
-                      className="text-blue-600 hover:text-blue-800 text-sm"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => onProjectDelete(project.id)}
-                      className="text-red-600 hover:text-red-800 text-sm"
-                    >
-                      Delete
-                    </button>
+                  
+                  {project.description && (
+                    <p className="text-gray-600 mb-6 leading-relaxed">{project.description}</p>
+                  )}
+                  
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-semibold text-gray-600">Progress</span>
+                      <span className="font-bold text-gray-900">{stats.completed}/{stats.total} tasks</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                      <div 
+                        className="h-3 rounded-full transition-all duration-500 shadow-lg"
+                        style={{ 
+                          width: `${stats.percentage}%`,
+                          backgroundColor: project.color 
+                        }}
+                      ></div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-gray-600">{stats.percentage}% complete</p>
+                      {stats.percentage === 100 && (
+                        <div className="flex items-center space-x-1 text-emerald-600">
+                          <TrophyIcon className="w-4 h-4" />
+                          <span className="text-sm font-semibold">Completed!</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-                
-                {project.description && (
-                  <p className="text-gray-600 mb-4">{project.description}</p>
-                )}
-                
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-500">Progress</span>
-                    <span className="font-medium">{stats.completed}/{stats.total} tasks</span>
-                  </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="h-2 rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${stats.percentage}%`,
-                        backgroundColor: project.color 
-                      }}
-                    ></div>
-                  </div>
-                  <p className="text-sm text-gray-500">{stats.percentage}% complete</p>
-                </div>
+              );
+            })
+          ) : (
+            <div className="col-span-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-12 text-center">
+              <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <FolderIcon className="w-10 h-10 text-blue-600" />
               </div>
-            );
-          })
-        ) : (
-          <div className="col-span-full text-center py-8">
-            <p className="text-gray-500">No projects yet. Create your first project!</p>
-          </div>
-        )}
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No projects yet</h3>
+              <p className="text-gray-600">Create your first project to get started!</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-// Calendar Component
+// Enhanced Calendar Component
 function Calendar() {
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Calendar</h1>
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Upcoming Events</h2>
-        <div className="space-y-4">
-          <div className="flex items-center p-4 bg-blue-50 rounded">
-            <div className="w-3 h-3 bg-blue-500 rounded-full mr-4"></div>
-            <div>
-              <h3 className="font-medium text-gray-900">Team Meeting</h3>
-              <p className="text-sm text-gray-500">Today at 2:00 PM</p>
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Calendar</h1>
+          <p className="text-gray-600 text-lg">Stay organized with your schedule.</p>
+        </div>
+        
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Upcoming Events</h2>
+            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+              <CalendarIcon className="w-5 h-5 text-white" />
             </div>
           </div>
-          <div className="flex items-center p-4 bg-green-50 rounded">
-            <div className="w-3 h-3 bg-green-500 rounded-full mr-4"></div>
-            <div>
-              <h3 className="font-medium text-gray-900">Project Deadline</h3>
-              <p className="text-sm text-gray-500">Tomorrow at 5:00 PM</p>
+          <div className="space-y-4">
+            <div className="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+              <div className="w-4 h-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mr-4 shadow-lg"></div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900">Team Meeting</h3>
+                <p className="text-sm text-gray-600">Today at 2:00 PM</p>
+              </div>
+              <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Today</span>
+            </div>
+            <div className="flex items-center p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl border border-emerald-100">
+              <div className="w-4 h-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full mr-4 shadow-lg"></div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900">Project Deadline</h3>
+                <p className="text-sm text-gray-600">Tomorrow at 5:00 PM</p>
+              </div>
+              <span className="text-sm font-semibold text-emerald-600 bg-emerald-100 px-3 py-1 rounded-full">Tomorrow</span>
+            </div>
+            <div className="flex items-center p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl border border-amber-100">
+              <div className="w-4 h-4 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-full mr-4 shadow-lg"></div>
+              <div className="flex-1">
+                <h3 className="font-bold text-gray-900">Client Presentation</h3>
+                <p className="text-sm text-gray-600">Friday at 10:00 AM</p>
+              </div>
+              <span className="text-sm font-semibold text-amber-600 bg-amber-100 px-3 py-1 rounded-full">This Week</span>
             </div>
           </div>
         </div>
@@ -820,24 +862,82 @@ function Calendar() {
   );
 }
 
-// Analytics Component
+// Enhanced Analytics Component
 function Analytics() {
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Analytics</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Task Completion Rate</h3>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-blue-600 mb-2">85%</div>
-            <p className="text-gray-600">This month</p>
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Analytics</h1>
+          <p className="text-gray-600 text-lg">Track your productivity and performance.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Task Completion Rate</h3>
+              <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+                <ChartBarIcon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">85%</div>
+              <p className="text-gray-600 font-medium">This month</p>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Productivity Score</h3>
+              <div className="p-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl">
+                <TrophyIcon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-4xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent mb-2">92</div>
+              <p className="text-gray-600 font-medium">Out of 100</p>
+            </div>
           </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Productivity Score</h3>
-          <div className="text-center">
-            <div className="text-4xl font-bold text-green-600 mb-2">92</div>
-            <p className="text-gray-600">Out of 100</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Tasks Created</h3>
+              <div className="p-2 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+                <PlusIcon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">24</div>
+              <p className="text-gray-600 font-medium">This week</p>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Projects Active</h3>
+              <div className="p-2 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl">
+                <FolderIcon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent mb-2">5</div>
+              <p className="text-gray-600 font-medium">Currently</p>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-gray-900">Streak Days</h3>
+              <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl">
+                <FireIcon className="w-5 h-5 text-white" />
+              </div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-2">7</div>
+              <p className="text-gray-600 font-medium">Days in a row</p>
+            </div>
           </div>
         </div>
       </div>
