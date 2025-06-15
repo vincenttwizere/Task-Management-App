@@ -17,14 +17,18 @@ import {
   CheckIcon,
   ClockIcon,
   ExclamationTriangleIcon,
+  SparklesIcon,
+  FireIcon,
+  TrophyIcon,
+  RocketLaunchIcon,
 } from '@heroicons/react/24/outline';
 
-// Notification Component
+// Enhanced Notification Component
 function Notification({ notification, onDismiss }) {
   const getIcon = (type) => {
     switch (type) {
-      case 'success': return <CheckIcon className="w-5 h-5 text-green-500" />;
-      case 'warning': return <ExclamationTriangleIcon className="w-5 h-5 text-yellow-500" />;
+      case 'success': return <CheckIcon className="w-5 h-5 text-emerald-500" />;
+      case 'warning': return <ExclamationTriangleIcon className="w-5 h-5 text-amber-500" />;
       case 'error': return <XMarkIcon className="w-5 h-5 text-red-500" />;
       default: return <BellIcon className="w-5 h-5 text-blue-500" />;
     }
@@ -32,25 +36,27 @@ function Notification({ notification, onDismiss }) {
 
   const getBgColor = (type) => {
     switch (type) {
-      case 'success': return 'bg-green-50 border-green-200';
-      case 'warning': return 'bg-yellow-50 border-yellow-200';
-      case 'error': return 'bg-red-50 border-red-200';
-      default: return 'bg-blue-50 border-blue-200';
+      case 'success': return 'bg-gradient-to-r from-emerald-50 to-green-50 border-emerald-200';
+      case 'warning': return 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200';
+      case 'error': return 'bg-gradient-to-r from-red-50 to-pink-50 border-red-200';
+      default: return 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200';
     }
   };
 
   return (
-    <div className={`${getBgColor(notification.type)} border rounded-lg p-4 mb-3 flex items-start justify-between`}>
+    <div className={`${getBgColor(notification.type)} border rounded-xl p-4 mb-3 flex items-start justify-between backdrop-blur-sm shadow-sm hover:shadow-md transition-all duration-200`}>
       <div className="flex items-start space-x-3">
-        {getIcon(notification.type)}
+        <div className="p-1.5 bg-white rounded-lg shadow-sm">
+          {getIcon(notification.type)}
+        </div>
         <div>
-          <h4 className="font-medium text-gray-900">{notification.title}</h4>
-          <p className="text-sm text-gray-600">{notification.message}</p>
+          <h4 className="font-semibold text-gray-900 mb-1">{notification.title}</h4>
+          <p className="text-sm text-gray-600 leading-relaxed">{notification.message}</p>
         </div>
       </div>
       <button
         onClick={() => onDismiss(notification.id)}
-        className="text-gray-400 hover:text-gray-600"
+        className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-white/50 transition-colors duration-200"
       >
         <XMarkIcon className="w-4 h-4" />
       </button>
@@ -58,7 +64,7 @@ function Notification({ notification, onDismiss }) {
   );
 }
 
-// Task Creation Modal
+// Enhanced Task Creation Modal
 function TaskModal({ isOpen, onClose, onSave, projects }) {
   const [formData, setFormData] = useState({
     title: '',
@@ -94,34 +100,41 @@ function TaskModal({ isOpen, onClose, onSave, projects }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Create New Task</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <XMarkIcon className="w-6 h-6" />
-          </button>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-2xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <PlusIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold">Create New Task</h3>
+            </div>
+            <button onClick={onClose} className="text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/20 transition-colors duration-200">
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Task Title</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Task Title</label>
             <input
               type="text"
               value={formData.title}
               onChange={(e) => setFormData({...formData, title: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               placeholder="Enter task title"
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white resize-none"
               placeholder="Enter task description"
               rows="3"
             />
@@ -129,11 +142,11 @@ function TaskModal({ isOpen, onClose, onSave, projects }) {
           
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Priority</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
               <select
                 value={formData.priority}
                 onChange={(e) => setFormData({...formData, priority: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               >
                 <option value="low">Low</option>
                 <option value="medium">Medium</option>
@@ -142,22 +155,22 @@ function TaskModal({ isOpen, onClose, onSave, projects }) {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
               <input
                 type="date"
                 value={formData.dueDate}
                 onChange={(e) => setFormData({...formData, dueDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               />
             </div>
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Project</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Project</label>
             <select
               value={formData.projectId}
               onChange={(e) => setFormData({...formData, projectId: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
             >
               <option value="">No Project</option>
               {projects.map(project => (
@@ -166,17 +179,17 @@ function TaskModal({ isOpen, onClose, onSave, projects }) {
             </select>
           </div>
           
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="flex-1 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200 hover:shadow-md"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
             >
               Create Task
             </button>
@@ -187,7 +200,7 @@ function TaskModal({ isOpen, onClose, onSave, projects }) {
   );
 }
 
-// Project Creation Modal
+// Enhanced Project Creation Modal
 function ProjectModal({ isOpen, onClose, onSave }) {
   const [formData, setFormData] = useState({
     name: '',
@@ -202,8 +215,7 @@ function ProjectModal({ isOpen, onClose, onSave }) {
     onSave({
       id: Date.now(),
       ...formData,
-      createdAt: new Date().toISOString(),
-      tasks: []
+      createdAt: new Date().toISOString()
     });
     
     setFormData({
@@ -217,60 +229,74 @@ function ProjectModal({ isOpen, onClose, onSave }) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold">Create New Project</h3>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
-            <XMarkIcon className="w-6 h-6" />
-          </button>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+        <div className="bg-gradient-to-r from-emerald-600 to-green-600 rounded-t-2xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <FolderIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold">Create New Project</h3>
+            </div>
+            <button onClick={onClose} className="text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/20 transition-colors duration-200">
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
         </div>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Project Name</label>
             <input
               type="text"
               value={formData.name}
               onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               placeholder="Enter project name"
               required
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
             <textarea
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white resize-none"
               placeholder="Enter project description"
               rows="3"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Color</label>
-            <input
-              type="color"
-              value={formData.color}
-              onChange={(e) => setFormData({...formData, color: e.target.value})}
-              className="w-full h-10 border border-gray-300 rounded-md"
-            />
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Project Color</label>
+            <div className="flex space-x-2">
+              {['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'].map(color => (
+                <button
+                  key={color}
+                  type="button"
+                  onClick={() => setFormData({...formData, color})}
+                  className={`w-10 h-10 rounded-lg border-2 transition-all duration-200 ${
+                    formData.color === color ? 'border-gray-400 scale-110' : 'border-gray-200 hover:border-gray-300'
+                  }`}
+                  style={{ backgroundColor: color }}
+                />
+              ))}
+            </div>
           </div>
           
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="flex-1 px-6 py-3 border border-gray-300 rounded-xl text-gray-700 hover:bg-gray-50 font-medium transition-all duration-200 hover:shadow-md"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-xl hover:from-emerald-700 hover:to-green-700 font-medium transition-all duration-200 hover:shadow-lg transform hover:scale-105"
             >
               Create Project
             </button>
@@ -281,210 +307,112 @@ function ProjectModal({ isOpen, onClose, onSave }) {
   );
 }
 
-// Combined Auth Page Component
+// Enhanced Auth Page
 function AuthPage({ onLogin, onSignup, users }) {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
-    confirmPassword: '',
+    name: ''
   });
-  const [error, setError] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
-
+    
     if (isLogin) {
-      // Login logic
-      if (!formData.email || !formData.password) {
-        setError('Please fill in all fields');
-        return;
-      }
-      
-      // Debug: Log the users array and attempted login
-      console.log('Available users:', users);
-      console.log('Attempting login with:', formData.email);
-      
-      // Simple validation - in real app, this would connect to backend
       const user = users.find(u => u.email === formData.email && u.password === formData.password);
-      
       if (user) {
-        console.log('Login successful for:', user.name);
         onLogin(user);
       } else {
-        console.log('Login failed - user not found or password incorrect');
-        setError('Invalid credentials. Use demo@taskflow.com / password or create a new account.');
+        alert('Invalid credentials. Try demo@taskflow.com / password');
       }
     } else {
-      // Signup logic
-      if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
-        setError('Please fill in all fields');
-        return;
+      if (formData.name && formData.email && formData.password) {
+        onSignup(formData);
+      } else {
+        alert('Please fill in all fields');
       }
-      if (formData.password !== formData.confirmPassword) {
-        setError('Passwords do not match');
-        return;
-      }
-      if (formData.password.length < 6) {
-        setError('Password must be at least 6 characters');
-        return;
-      }
-      
-      // Check if user already exists
-      const existingUser = users.find(u => u.email === formData.email);
-      if (existingUser) {
-        setError('An account with this email already exists. Please login instead.');
-        return;
-      }
-      
-      // Pass the password along with other user data
-      onSignup({ 
-        email: formData.email, 
-        name: formData.name,
-        password: formData.password
-      });
     }
   };
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
-    setError('');
-    setFormData({
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-    });
+    setFormData({ email: '', password: '', name: '' });
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold text-center text-blue-600">TaskFlow</h1>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            {isLogin ? 'Sign in to your account' : 'Create your account'}
-          </h2>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-md border border-white/20">
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-4">
+            <RocketLaunchIcon className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">TaskFlow</h1>
+          <p className="text-gray-600">Your productivity companion</p>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                placeholder="Enter your full name"
+              />
             </div>
           )}
           
-          <div className="space-y-4">
-            {!isLogin && (
-              <div>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                  Full Name
-                </label>
-                <div className="mt-1 relative">
-                  <UserIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="name"
-                    name="name"
-                    type="text"
-                    required={!isLogin}
-                    className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder="Enter your full name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  />
-                </div>
-              </div>
-            )}
-            
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email address
-              </label>
-              <div className="mt-1 relative">
-                <EnvelopeIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                />
-              </div>
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Password
-              </label>
-              <div className="mt-1 relative">
-                <LockClosedIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                  placeholder="Enter your password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                />
-              </div>
-            </div>
-            
-            {!isLogin && (
-              <div>
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
-                  Confirm Password
-                </label>
-                <div className="mt-1 relative">
-                  <LockClosedIcon className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
-                  <input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    required={!isLogin}
-                    className="pl-10 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                    placeholder="Confirm your password"
-                    value={formData.confirmPassword}
-                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
           <div>
-            <button
-              type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-            >
-              {isLogin ? 'Sign in' : 'Create Account'}
-            </button>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email Address</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              placeholder="Enter your email"
+            />
           </div>
+          
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              placeholder="Enter your password"
+            />
+          </div>
+          
+          <button
+            type="submit"
+            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+          >
+            {isLogin ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
 
-          <div className="text-center space-y-2">
-            {isLogin && (
-              <p className="text-sm text-gray-600">
-                Demo credentials: demo@taskflow.com / password
-              </p>
-            )}
-            <p className="text-sm text-gray-600">
-              {isLogin ? "Don't have an account?" : "Already have an account?"}{' '}
-              <button
-                type="button"
-                onClick={toggleMode}
-                className="font-medium text-blue-600 hover:text-blue-500"
-              >
-                {isLogin ? 'Sign up here' : 'Sign in here'}
-              </button>
+        <div className="mt-6 text-center">
+          <button
+            onClick={toggleMode}
+            className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
+          >
+            {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+          </button>
+        </div>
+
+        {isLogin && (
+          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <p className="text-sm text-blue-800 text-center">
+              <strong>Demo Account:</strong><br />
+              Email: demo@taskflow.com<br />
+              Password: password
             </p>
           </div>
-        </form>
+        )}
       </div>
     </div>
   );
@@ -503,88 +431,140 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
     .slice(0, 5);
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h1>
-      
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900">Total Tasks</h3>
-          <p className="text-3xl font-bold text-blue-600">{tasks.length}</p>
+    <div className="p-8 bg-gradient-to-br from-gray-50 to-blue-50 min-h-full">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Dashboard</h1>
+          <p className="text-gray-600 text-lg">Welcome back! Here's your productivity overview.</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900">Completed</h3>
-          <p className="text-3xl font-bold text-green-600">{completedTasks.length}</p>
+        
+        {/* Enhanced Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Total Tasks</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{tasks.length}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+                <FlagIcon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Completed</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{completedTasks.length}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl">
+                <CheckIcon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Pending</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">{pendingTasks.length}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl">
+                <ClockIcon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-lg border border-white/20 hover:shadow-xl transition-all duration-300 transform hover:scale-105">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-gray-600 mb-1">Projects</p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{projects.length}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
+                <FolderIcon className="w-6 h-6 text-white" />
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900">Pending</h3>
-          <p className="text-3xl font-bold text-yellow-600">{pendingTasks.length}</p>
-        </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-semibold text-gray-900">Projects</h3>
-          <p className="text-3xl font-bold text-purple-600">{projects.length}</p>
-        </div>
-      </div>
 
-      {/* Recent Tasks */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Tasks</h2>
-        <div className="space-y-3">
-          {recentTasks.length > 0 ? (
-            recentTasks.map(task => (
-              <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                <div className="flex items-center space-x-3">
-                  <button
-                    onClick={() => onTaskToggle(task.id)}
-                    className={`w-5 h-5 rounded border-2 flex items-center justify-center ${
-                      task.completed 
-                        ? 'bg-green-500 border-green-500 text-white' 
-                        : 'border-gray-300 hover:border-green-500'
-                    }`}
-                  >
-                    {task.completed && <CheckIcon className="w-3 h-3" />}
-                  </button>
-                  <div>
-                    <h3 className={`font-medium ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
-                      {task.title}
-                    </h3>
-                    <p className="text-sm text-gray-500">{task.description}</p>
+        {/* Enhanced Recent Tasks */}
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-white/20 p-6 mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Recent Tasks</h2>
+            <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
+              <SparklesIcon className="w-5 h-5 text-white" />
+            </div>
+          </div>
+          <div className="space-y-4">
+            {recentTasks.length > 0 ? (
+              recentTasks.map(task => (
+                <div key={task.id} className="flex items-center justify-between p-4 bg-gray-50/50 rounded-xl hover:bg-gray-50 transition-all duration-200 border border-gray-100">
+                  <div className="flex items-center space-x-4">
+                    <button
+                      onClick={() => onTaskToggle(task.id)}
+                      className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all duration-200 ${
+                        task.completed 
+                          ? 'bg-gradient-to-r from-emerald-500 to-green-500 border-emerald-500 text-white shadow-lg' 
+                          : 'border-gray-300 hover:border-emerald-500 hover:shadow-md'
+                      }`}
+                    >
+                      {task.completed && <CheckIcon className="w-4 h-4" />}
+                    </button>
+                    <div>
+                      <h3 className={`font-semibold text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-900'}`}>
+                        {task.title}
+                      </h3>
+                      {task.description && (
+                        <p className={`text-gray-600 mt-1 ${task.completed ? 'line-through' : ''}`}>
+                          {task.description}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <span className={`px-3 py-1 text-sm font-semibold rounded-full ${
+                      task.priority === 'high' ? 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800' :
+                      task.priority === 'medium' ? 'bg-gradient-to-r from-amber-100 to-yellow-100 text-amber-800' :
+                      'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800'
+                    }`}>
+                      {task.priority}
+                    </span>
+                    {task.dueDate && (
+                      <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                        {new Date(task.dueDate).toLocaleDateString()}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <span className={`px-2 py-1 text-xs font-medium rounded ${
-                    task.priority === 'high' ? 'bg-red-100 text-red-800' :
-                    task.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                    'bg-green-100 text-green-800'
-                  }`}>
-                    {task.priority}
-                  </span>
-                  {task.dueDate && (
-                    <span className="text-sm text-gray-500">
-                      {new Date(task.dueDate).toLocaleDateString()}
-                    </span>
-                  )}
+              ))
+            ) : (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <FlagIcon className="w-8 h-8 text-blue-600" />
                 </div>
+                <p className="text-gray-500 text-lg">No tasks yet. Create your first task to get started!</p>
               </div>
-            ))
-          ) : (
-            <p className="text-gray-500 text-center py-4">No tasks yet. Create your first task!</p>
-          )}
-        </div>
-      </div>
-
-      {/* Overdue Tasks Warning */}
-      {overdueTasks.length > 0 && (
-        <div className="mt-6 bg-red-50 border border-red-200 rounded-lg p-4">
-          <div className="flex items-center space-x-2">
-            <ExclamationTriangleIcon className="w-5 h-5 text-red-500" />
-            <h3 className="font-medium text-red-900">Overdue Tasks</h3>
+            )}
           </div>
-          <p className="text-sm text-red-700 mt-1">
-            You have {overdueTasks.length} overdue task{overdueTasks.length > 1 ? 's' : ''}.
-          </p>
         </div>
-      )}
+
+        {/* Enhanced Overdue Tasks Warning */}
+        {overdueTasks.length > 0 && (
+          <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-6">
+            <div className="flex items-center space-x-3 mb-3">
+              <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl">
+                <ExclamationTriangleIcon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="font-bold text-red-900 text-lg">Overdue Tasks</h3>
+            </div>
+            <p className="text-red-700">
+              You have <span className="font-semibold">{overdueTasks.length}</span> overdue task{overdueTasks.length > 1 ? 's' : ''} that need your attention.
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
