@@ -1221,7 +1221,7 @@ function App() {
                   
                   {/* Enhanced Notifications Dropdown */}
                   {showNotifications && (
-                    <div className="notifications-dropdown absolute right-0 mt-3 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 z-50 max-h-96 overflow-y-auto">
+                    <div className="notifications-dropdown fixed top-20 right-8 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 z-[9999] max-h-96 overflow-y-auto">
                       <div className="p-6 border-b border-white/20">
                         <div className="flex items-center justify-between">
                           <h3 className="text-lg font-bold text-gray-900">Notifications</h3>
