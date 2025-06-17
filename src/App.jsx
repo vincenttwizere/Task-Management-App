@@ -447,7 +447,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
                 <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">{tasks.length}</p>
               </div>
               <div className="p-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
-                <FlagIcon className="w-6 h-6 text-white" />
+                <FlagIcon className="w-5 h-5 text-white" />
               </div>
             </div>
           </div>
@@ -459,7 +459,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
                 <p className="text-3xl font-bold bg-gradient-to-r from-emerald-600 to-green-600 bg-clip-text text-transparent">{completedTasks.length}</p>
               </div>
               <div className="p-3 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl">
-                <CheckIcon className="w-6 h-6 text-white" />
+                <CheckIcon className="w-5 h-5 text-white" />
               </div>
             </div>
           </div>
@@ -471,7 +471,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
                 <p className="text-3xl font-bold bg-gradient-to-r from-amber-600 to-yellow-600 bg-clip-text text-transparent">{pendingTasks.length}</p>
               </div>
               <div className="p-3 bg-gradient-to-r from-amber-500 to-yellow-500 rounded-xl">
-                <ClockIcon className="w-6 h-6 text-white" />
+                <ClockIcon className="w-5 h-5 text-white" />
               </div>
             </div>
           </div>
@@ -483,7 +483,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
                 <p className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{projects.length}</p>
               </div>
               <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl">
-                <FolderIcon className="w-6 h-6 text-white" />
+                <FolderIcon className="w-5 h-5 text-white" />
               </div>
             </div>
           </div>
@@ -494,7 +494,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-gray-900">Recent Tasks</h2>
             <div className="p-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-xl">
-              <SparklesIcon className="w-5 h-5 text-white" />
+              <SparklesIcon className="w-4 h-4 text-white" />
             </div>
           </div>
           <div className="space-y-4">
@@ -542,7 +542,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
             ) : (
               <div className="text-center py-12">
                 <div className="w-16 h-16 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <FlagIcon className="w-8 h-8 text-blue-600" />
+                  <FlagIcon className="w-6 h-6 text-blue-600" />
                 </div>
                 <p className="text-gray-500 text-lg">No tasks yet. Create your first task to get started!</p>
               </div>
@@ -555,7 +555,7 @@ function Dashboard({ tasks, projects, onTaskToggle, onTaskDelete }) {
           <div className="bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-6">
             <div className="flex items-center space-x-3 mb-3">
               <div className="p-2 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl">
-                <ExclamationTriangleIcon className="w-5 h-5 text-white" />
+                <ExclamationTriangleIcon className="w-4 h-4 text-white" />
               </div>
               <h3 className="font-bold text-red-900 text-lg">Overdue Tasks</h3>
             </div>
