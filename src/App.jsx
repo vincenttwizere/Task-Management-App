@@ -342,8 +342,8 @@ function AuthPage({ onLogin, onSignup, users }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 w-full max-w-md border border-white/20">
-        <div className="text-center mb-8">
+      <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-6 w-full max-w-md border border-white/20">
+        <div className="text-center mb-6">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl mb-4">
             <RocketLaunchIcon className="w-8 h-8 text-white" />
           </div>
@@ -351,7 +351,7 @@ function AuthPage({ onLogin, onSignup, users }) {
           <p className="text-gray-600">Your productivity companion</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-4">
           {!isLogin && (
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
@@ -359,7 +359,7 @@ function AuthPage({ onLogin, onSignup, users }) {
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
-                className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+                className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
                 placeholder="Enter your full name"
               />
             </div>
@@ -371,7 +371,7 @@ function AuthPage({ onLogin, onSignup, users }) {
               type="email"
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               placeholder="Enter your email"
             />
           </div>
@@ -382,20 +382,20 @@ function AuthPage({ onLogin, onSignup, users }) {
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
+              className="w-full px-4 py-2 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-gray-50 hover:bg-white"
               placeholder="Enter your password"
             />
           </div>
           
           <button
             type="submit"
-            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold transition-all duration-200 hover:shadow-lg transform hover:scale-105"
+            className="w-full px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl hover:from-blue-700 hover:to-indigo-700 font-semibold transition-all duration-200 hover:shadow-lg transform hover:scale-105"
           >
             {isLogin ? 'Sign In' : 'Create Account'}
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-4 text-center">
           <button
             onClick={toggleMode}
             className="text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200"
@@ -405,7 +405,7 @@ function AuthPage({ onLogin, onSignup, users }) {
         </div>
 
         {isLogin && (
-          <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
+          <div className="mt-4 p-3 bg-blue-50 rounded-xl border border-blue-200">
             <p className="text-sm text-blue-800 text-center">
               <strong>Demo Account:</strong><br />
               Email: demo@taskflow.com<br />
