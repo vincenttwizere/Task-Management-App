@@ -87,9 +87,9 @@ export default function Register() {
         </div>
 
         {/* Right side - Registration form */}
-        <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+        <div className="w-full lg:w-1/2 flex items-center justify-center p-6">
           <div className="w-full max-w-md">
-            <div className="text-center mb-8">
+            <div className="text-center mb-6">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 mb-4">
                 <span className="text-2xl font-bold text-primary-600">T</span>
               </div>
@@ -97,7 +97,7 @@ export default function Register() {
               <p className="mt-2 text-gray-600">Join TaskFlow and start organizing your tasks</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
                 <div className="rounded-lg bg-red-50 p-4">
                   <div className="flex">
@@ -123,7 +123,7 @@ export default function Register() {
                   required
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  className="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Enter your name"
                 />
               </div>
@@ -138,7 +138,7 @@ export default function Register() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Enter your email"
                 />
               </div>
@@ -153,7 +153,7 @@ export default function Register() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Create a password"
                 />
                 <p className="mt-1 text-sm text-gray-500">Must be at least 6 characters long</p>
@@ -169,7 +169,7 @@ export default function Register() {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 block w-full px-4 py-3 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  className="mt-1 block w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   placeholder="Confirm your password"
                 />
               </div>
@@ -178,7 +178,7 @@ export default function Register() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className={`w-full flex justify-center py-3 px-4 rounded-lg text-white font-medium ${
+                  className={`w-full flex justify-center py-2 px-4 rounded-lg text-white font-medium ${
                     loading
                       ? 'bg-primary-400 cursor-not-allowed'
                       : 'bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500'
