@@ -64,6 +64,52 @@ function Notification({ notification, onDismiss }) {
   );
 }
 
+// Enhanced Notifications Modal
+function NotificationsModal({ isOpen, onClose, notifications, onDismiss }) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all duration-300 scale-100">
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-t-2xl p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 bg-white/20 rounded-lg">
+                <BellIcon className="w-6 h-6" />
+              </div>
+              <h3 className="text-xl font-bold">Notifications</h3>
+            </div>
+            <button onClick={onClose} className="text-white/80 hover:text-white p-2 rounded-lg hover:bg-white/20 transition-colors duration-200">
+              <XMarkIcon className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+        
+        <div className="p-6 max-h-96 overflow-y-auto">
+          {notifications.length > 0 ? (
+            <div className="space-y-3">
+              {notifications.map(notification => (
+                <Notification
+                  key={notification.id}
+                  notification={notification}
+                  onDismiss={onDismiss}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <BellIcon className="w-8 h-8 text-gray-400" />
+              </div>
+              <p className="text-gray-500 font-medium">No notifications</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Enhanced Task Creation Modal
 function TaskModal({ isOpen, onClose, onSave, projects }) {
   const [formData, setFormData] = useState({
@@ -1218,43 +1264,6 @@ function App() {
                       </span>
                     )}
                   </button>
-                  
-                  {/* Enhanced Notifications Dropdown */}
-                  {showNotifications && (
-                    <div className="notifications-dropdown fixed top-20 right-8 w-80 bg-white/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/20 z-[9999] max-h-96 overflow-y-auto">
-                      <div className="p-6 border-b border-white/20">
-                        <div className="flex items-center justify-between">
-                          <h3 className="text-lg font-bold text-gray-900">Notifications</h3>
-                          <button
-                            onClick={() => setShowNotifications(false)}
-                            className="text-gray-400 hover:text-gray-600 p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
-                          >
-                            <XMarkIcon className="w-5 h-5" />
-                          </button>
-                        </div>
-                      </div>
-                      <div className="p-4">
-                        {notifications.length > 0 ? (
-                          <div className="space-y-3">
-                            {notifications.map(notification => (
-                              <Notification
-                                key={notification.id}
-                                notification={notification}
-                                onDismiss={dismissNotification}
-                              />
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="text-center py-12">
-                            <div className="w-16 h-16 bg-gradient-to-r from-gray-100 to-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                              <BellIcon className="w-8 h-8 text-gray-400" />
-                            </div>
-                            <p className="text-gray-500 font-medium">No notifications</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
                 </div>
                 
                 <div className="flex items-center space-x-3">
@@ -1343,6 +1352,13 @@ function App() {
           setEditingProject(null);
         }}
         onSave={handleCreateProject}
+      />
+
+      <NotificationsModal
+        isOpen={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notifications={notifications}
+        onDismiss={dismissNotification}
       />
     </Router>
   );
