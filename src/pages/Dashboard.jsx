@@ -13,9 +13,10 @@ import {
   UserGroupIcon,
   ClockIcon,
   CheckCircleIcon,
+  CheckIcon,
 } from '@heroicons/react/24/outline';
 import { subscribeToTasks, toggleTaskStatus } from '../services/taskService';
-import { subscribeToNotifications, markNotificationAsRead } from '../services/notificationService';
+import { subscribeToNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../services/notificationService';
 
 export default function Dashboard() {
   const [tasks, setTasks] = useState([]);
@@ -36,6 +37,7 @@ export default function Dashboard() {
 
     // Subscribe to real-time notifications
     const unsubscribeNotifications = subscribeToNotifications(currentUser.uid, (notificationsData) => {
+      console.log('Notifications updated:', notificationsData);
       setNotifications(notificationsData);
     });
 
@@ -71,9 +73,33 @@ export default function Dashboard() {
 
   const markNotificationAsReadHandler = async (notificationId) => {
     try {
+      console.log('Marking notification as read:', notificationId);
       await markNotificationAsRead(notificationId);
+      
+      // Optimistically update the local state for immediate UI feedback
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => 
+          notification.id === notificationId 
+            ? { ...notification, read: true }
+            : notification
+        )
+      );
     } catch (error) {
       console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllNotificationsAsReadHandler = async () => {
+    try {
+      console.log('Marking all notifications as read');
+      await markAllNotificationsAsRead(currentUser.uid);
+      
+      // Optimistically update the local state for immediate UI feedback
+      setNotifications(prevNotifications => 
+        prevNotifications.map(notification => ({ ...notification, read: true }))
+      );
+    } catch (error) {
+      console.error('Error marking all notifications as read:', error);
     }
   };
 
@@ -107,7 +133,7 @@ export default function Dashboard() {
               >
                 <BellIcon className="h-6 w-6" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error-500 rounded-full shadow-lg">
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error-500 rounded-full shadow-lg animate-pulse-slow">
                     {unreadNotificationsCount}
                   </span>
                 )}
@@ -116,8 +142,17 @@ export default function Dashboard() {
               {/* Notifications Dropdown */}
               {showNotifications && (
                 <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl py-1 z-50 ring-1 ring-black ring-opacity-5 border border-gray-100">
-                  <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
                     <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
+                    {unreadNotificationsCount > 0 && (
+                      <button
+                        onClick={markAllNotificationsAsReadHandler}
+                        className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center transition-colors duration-200"
+                      >
+                        <CheckIcon className="h-4 w-4 mr-1" />
+                        Mark all read
+                      </button>
+                    )}
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
@@ -134,16 +169,26 @@ export default function Dashboard() {
                               {notification.type === 'task' && <ClipboardDocumentListIcon className="h-5 w-5 text-primary-500" />}
                               {notification.type === 'project' && <FolderIcon className="h-5 w-5 text-success-500" />}
                               {notification.type === 'team' && <UserGroupIcon className="h-5 w-5 text-warning-500" />}
+                              {notification.type === 'task_assignment' && <ClipboardDocumentListIcon className="h-5 w-5 text-primary-500" />}
+                              {notification.type === 'project_update' && <FolderIcon className="h-5 w-5 text-success-500" />}
                             </div>
                             <div className="ml-3 w-0 flex-1">
-                              <p className="text-base font-medium text-gray-900">
-                                {notification.title}
-                              </p>
+                              <div className="flex items-start justify-between">
+                                <p className="text-base font-medium text-gray-900">
+                                  {notification.title}
+                                </p>
+                                {!notification.read && (
+                                  <div className="w-2 h-2 bg-primary-500 rounded-full flex-shrink-0 ml-2"></div>
+                                )}
+                              </div>
                               <p className="mt-1 text-base text-gray-500">
                                 {notification.message}
                               </p>
                               <p className="mt-1 text-sm text-gray-400">
-                                {notification.time}
+                                {notification.createdAt ? 
+                                  new Date(notification.createdAt).toLocaleString() : 
+                                  notification.time || 'Just now'
+                                }
                               </p>
                             </div>
                           </div>

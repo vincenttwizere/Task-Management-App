@@ -17,13 +17,54 @@ import { db } from '../config/firebase';
 // Check if we're using mock Firestore
 const isMockDb = !db.collection || typeof db.collection !== 'function';
 
+// Mock notifications for development
+let mockNotifications = [
+  {
+    id: 'mock-1',
+    userId: 'mock-user',
+    type: 'task_assignment',
+    title: 'New Task Assigned',
+    message: 'You have been assigned to "Design new homepage"',
+    read: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+    priority: 'medium'
+  },
+  {
+    id: 'mock-2',
+    userId: 'mock-user',
+    type: 'project_update',
+    title: 'Project Updated',
+    message: 'Project "Website Redesign" has been updated',
+    read: false,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
+    priority: 'low'
+  },
+  {
+    id: 'mock-3',
+    userId: 'mock-user',
+    type: 'team',
+    title: 'Team Member Joined',
+    message: 'Sarah Wilson has joined the project',
+    read: true,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+    priority: 'low'
+  }
+];
+
 // Real-time notifications listener
 export const subscribeToNotifications = (userId, callback) => {
   if (isMockDb) {
-    // Mock implementation
+    // Mock implementation with real-time simulation
     console.log('Using mock notification subscription for development');
-    callback([]);
-    return () => {};
+    
+    // Filter notifications for the current user
+    const userNotifications = mockNotifications.filter(n => n.userId === userId || n.userId === 'mock-user');
+    callback(userNotifications);
+    
+    // Return a cleanup function that simulates real-time updates
+    return () => {
+      console.log('Mock notification subscription cleaned up');
+    };
   }
 
   const q = query(
@@ -58,7 +99,12 @@ export const createNotification = async (notificationData) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Creating mock notification:', notification);
-      const mockNotification = { id: `mock-${Date.now()}`, ...notification };
+      const mockNotification = { 
+        id: `mock-${Date.now()}`, 
+        ...notification,
+        createdAt: new Date()
+      };
+      mockNotifications.unshift(mockNotification);
       return mockNotification;
     }
 
@@ -76,6 +122,11 @@ export const markNotificationAsRead = async (notificationId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Marking mock notification as read:', notificationId);
+      const notification = mockNotifications.find(n => n.id === notificationId);
+      if (notification) {
+        notification.read = true;
+        notification.readAt = new Date();
+      }
       return Promise.resolve();
     }
 
@@ -96,6 +147,12 @@ export const markAllNotificationsAsRead = async (userId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Marking all mock notifications as read for user:', userId);
+      mockNotifications.forEach(notification => {
+        if ((notification.userId === userId || notification.userId === 'mock-user') && !notification.read) {
+          notification.read = true;
+          notification.readAt = new Date();
+        }
+      });
       return Promise.resolve();
     }
 
@@ -128,6 +185,7 @@ export const deleteNotification = async (notificationId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Deleting mock notification:', notificationId);
+      mockNotifications = mockNotifications.filter(n => n.id !== notificationId);
       return Promise.resolve();
     }
 
