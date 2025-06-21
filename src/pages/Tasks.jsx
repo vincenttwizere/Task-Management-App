@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
+import TaskDetails from '../components/TaskDetails';
 import {
   PlusIcon,
   FunnelIcon,
@@ -9,6 +10,11 @@ import {
   CalendarIcon,
   TagIcon,
   UserGroupIcon,
+  MagnifyingGlassIcon,
+  EyeIcon,
+  ChatBubbleLeftIcon,
+  PaperClipIcon,
+  XMarkIcon,
 } from '@heroicons/react/24/outline';
 import { Dialog, Transition } from '@headlessui/react';
 import { Fragment } from 'react';
@@ -21,6 +27,7 @@ import {
   updateTask 
 } from '../services/taskService';
 import { createTaskAssignmentNotification } from '../services/notificationService';
+import { getAllUsers } from '../services/userService';
 
 export default function Tasks() {
   const location = useLocation();
@@ -32,10 +39,15 @@ export default function Tasks() {
     status: 'all',
     priority: 'all',
     category: 'all',
-    dueDate: 'all'
+    dueDate: 'all',
+    assignedTo: 'all'
   });
   const [sortBy, setSortBy] = useState('dueDate');
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState(null);
+  const [isTaskDetailsOpen, setIsTaskDetailsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [users, setUsers] = useState([]);
   const [newTask, setNewTask] = useState({
     title: '',
     description: '',
@@ -64,15 +76,26 @@ export default function Tasks() {
       setLoading(false);
     });
 
+    // Load users for assignment
+    const loadUsers = async () => {
+      try {
+        const usersData = await getAllUsers();
+        setUsers(usersData);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
+    };
+    loadUsers();
+
     return () => unsubscribe();
   }, [currentUser]);
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'high':
-        return 'bg-red-100 text-red-800';
+        return 'bg-error-100 text-error-800';
       case 'medium':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-100 text-warning-800';
       case 'low':
         return 'bg-gray-100 text-gray-800';
       default:
@@ -83,9 +106,9 @@ export default function Tasks() {
   const getStatusColor = (status) => {
     switch (status) {
       case 'completed':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success-100 text-success-800';
       case 'in-progress':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-primary-100 text-primary-800';
       case 'todo':
         return 'bg-gray-100 text-gray-800';
       default:
@@ -108,11 +131,32 @@ export default function Tasks() {
     }
   };
 
+  // Advanced filtering with search
   const filteredTasks = tasks.filter(task => {
+    // Search term filter
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = 
+        task.title.toLowerCase().includes(searchLower) ||
+        task.description?.toLowerCase().includes(searchLower) ||
+        task.category?.toLowerCase().includes(searchLower);
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Status filter
     if (filters.status !== 'all' && task.status !== filters.status) return false;
+    
+    // Priority filter
     if (filters.priority !== 'all' && task.priority !== filters.priority) return false;
+    
+    // Category filter
     if (filters.category !== 'all' && task.category !== filters.category) return false;
     
+    // Assigned to filter
+    if (filters.assignedTo !== 'all' && task.assignedTo !== filters.assignedTo) return false;
+    
+    // Due date filter
     if (filters.dueDate !== 'all') {
       const today = new Date();
       const taskDate = new Date(task.dueDate);
@@ -148,6 +192,8 @@ export default function Tasks() {
       case 'status':
         const statusOrder = { todo: 1, 'in-progress': 2, completed: 3 };
         return statusOrder[a.status] - statusOrder[b.status];
+      case 'title':
+        return a.title.localeCompare(b.title);
       default:
         return 0;
     }
@@ -201,16 +247,36 @@ export default function Tasks() {
       const newStatus = currentStatus === 'completed' ? 'todo' : 'completed';
       await toggleTaskStatus(taskId, newStatus === 'completed');
     } catch (error) {
-      console.error('Error toggling task status:', error);
-      setError('Failed to update task status. Please try again.');
+      console.error('Error updating task status:', error);
     }
+  };
+
+  const handleTaskClick = (task) => {
+    setSelectedTask(task);
+    setIsTaskDetailsOpen(true);
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      status: 'all',
+      priority: 'all',
+      category: 'all',
+      dueDate: 'all',
+      assignedTo: 'all'
+    });
+    setSearchTerm('');
+  };
+
+  const getUserDisplayName = (userId) => {
+    const user = users.find(u => u.uid === userId || u.id === userId);
+    return user ? user.displayName : 'Unknown User';
   };
 
   if (loading) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="loading-spinner h-12 w-12"></div>
         </div>
       </DashboardLayout>
     );
@@ -220,145 +286,275 @@ export default function Tasks() {
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Tasks</h1>
-          <div className="flex items-center space-x-4">
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              <FunnelIcon className="h-5 w-5 mr-2" />
-              Filters
-            </button>
-            <button 
-              onClick={() => setIsNewTaskModalOpen(true)}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            >
-              <PlusIcon className="h-5 w-5 mr-2" />
-              New Task
-            </button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Tasks</h1>
+            <p className="text-lg text-gray-600">Manage and track your tasks efficiently</p>
           </div>
+          <button
+            onClick={() => setIsNewTaskModalOpen(true)}
+            className="btn-primary hover-glow"
+          >
+            <PlusIcon className="h-5 w-5 mr-2" />
+            New Task
+          </button>
         </div>
 
-        {/* Error Display */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-4">
-            <div className="flex">
-              <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                </svg>
-              </div>
-              <div className="ml-3">
-                <p className="text-sm text-red-800">{error}</p>
-              </div>
-              <div className="ml-auto pl-3">
-                <div className="-mx-1.5 -my-1.5">
-                  <button
-                    onClick={() => setError('')}
-                    className="inline-flex bg-red-50 rounded-md p-1.5 text-red-500 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-red-50 focus:ring-red-600"
+        {/* Search and Filters */}
+        <div className="card">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0">
+            {/* Search */}
+            <div className="relative flex-1 max-w-md">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+
+            {/* Filters Toggle */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                className="btn-outline btn-sm"
+              >
+                <FunnelIcon className="h-4 w-4 mr-2" />
+                Filters
+                <ChevronDownIcon className={`h-4 w-4 ml-2 transition-transform ${showFilters ? 'rotate-180' : ''}`} />
+              </button>
+
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="input text-sm"
+              >
+                <option value="dueDate">Sort by Due Date</option>
+                <option value="priority">Sort by Priority</option>
+                <option value="status">Sort by Status</option>
+                <option value="title">Sort by Title</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filters Panel */}
+          {showFilters && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                  <select
+                    value={filters.status}
+                    onChange={(e) => setFilters({...filters, status: e.target.value})}
+                    className="input text-sm"
                   >
-                    <span className="sr-only">Dismiss</span>
-                    <svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                    </svg>
-                  </button>
+                    <option value="all">All Statuses</option>
+                    <option value="todo">To Do</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                  <select
+                    value={filters.priority}
+                    onChange={(e) => setFilters({...filters, priority: e.target.value})}
+                    className="input text-sm"
+                  >
+                    <option value="all">All Priorities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                  <select
+                    value={filters.category}
+                    onChange={(e) => setFilters({...filters, category: e.target.value})}
+                    className="input text-sm"
+                  >
+                    <option value="all">All Categories</option>
+                    <option value="development">Development</option>
+                    <option value="design">Design</option>
+                    <option value="marketing">Marketing</option>
+                    <option value="work">Work</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Due Date</label>
+                  <select
+                    value={filters.dueDate}
+                    onChange={(e) => setFilters({...filters, dueDate: e.target.value})}
+                    className="input text-sm"
+                  >
+                    <option value="all">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="tomorrow">Tomorrow</option>
+                    <option value="week">This Week</option>
+                    <option value="overdue">Overdue</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Assigned To</label>
+                  <select
+                    value={filters.assignedTo}
+                    onChange={(e) => setFilters({...filters, assignedTo: e.target.value})}
+                    className="input text-sm"
+                  >
+                    <option value="all">All Users</option>
+                    {users.map(user => (
+                      <option key={user.id} value={user.uid || user.id}>
+                        {user.displayName}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-            </div>
-          </div>
-        )}
 
-        {/* Filters */}
-        {showFilters && (
-          <div className="bg-white shadow rounded-lg p-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <select
-                  value={filters.status}
-                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={clearFilters}
+                  className="btn-secondary btn-sm"
                 >
-                  <option value="all">All</option>
-                  <option value="todo">To Do</option>
-                  <option value="in-progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Priority
-                </label>
-                <select
-                  value={filters.priority}
-                  onChange={(e) => setFilters({ ...filters, priority: e.target.value })}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-                >
-                  <option value="all">All</option>
-                  <option value="high">High</option>
-                  <option value="medium">Medium</option>
-                  <option value="low">Low</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Category
-                </label>
-                <select
-                  value={filters.category}
-                  onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-                >
-                  <option value="all">All</option>
-                  <option value="development">Development</option>
-                  <option value="design">Design</option>
-                  <option value="marketing">Marketing</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Due Date
-                </label>
-                <select
-                  value={filters.dueDate}
-                  onChange={(e) => setFilters({ ...filters, dueDate: e.target.value })}
-                  className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-                >
-                  <option value="all">All</option>
-                  <option value="today">Today</option>
-                  <option value="tomorrow">Tomorrow</option>
-                  <option value="week">This Week</option>
-                  <option value="overdue">Overdue</option>
-                </select>
+                  Clear Filters
+                </button>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* Sort Options */}
-        <div className="flex items-center justify-end space-x-4">
-          <span className="text-sm text-gray-500">Sort by:</span>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="block w-40 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm rounded-md"
-          >
-            <option value="dueDate">Due Date</option>
-            <option value="priority">Priority</option>
-            <option value="status">Status</option>
-          </select>
+          )}
         </div>
+
+        {/* Tasks List */}
+        <div className="space-y-4">
+          {sortedTasks.length > 0 ? (
+            sortedTasks.map((task) => (
+              <div
+                key={task.id}
+                className="card hover-lift cursor-pointer"
+                onClick={() => handleTaskClick(task)}
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleTaskStatusToggle(task.id, task.status);
+                        }}
+                        className={`p-1 rounded-full transition-colors ${
+                          task.status === 'completed' 
+                            ? 'text-success-600 hover:text-success-700' 
+                            : 'text-gray-400 hover:text-gray-600'
+                        }`}
+                      >
+                        <CheckCircleIcon className={`h-5 w-5 ${task.status === 'completed' ? 'fill-current' : ''}`} />
+                      </button>
+                      
+                      <h3 className={`text-lg font-semibold text-gray-900 ${
+                        task.status === 'completed' ? 'line-through text-gray-500' : ''
+                      }`}>
+                        {task.title}
+                      </h3>
+                    </div>
+
+                    {task.description && (
+                      <p className="text-gray-600 mb-3 line-clamp-2">{task.description}</p>
+                    )}
+
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      <span className={`badge ${getPriorityColor(task.priority)}`}>
+                        {task.priority}
+                      </span>
+                      <span className={`badge ${getStatusColor(task.status)}`}>
+                        {task.status}
+                      </span>
+                      {task.category && (
+                        <span className={`badge ${getCategoryColor(task.category)}`}>
+                          {task.category}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center justify-between text-sm text-gray-500">
+                      <div className="flex items-center space-x-4">
+                        {task.dueDate && (
+                          <div className="flex items-center">
+                            <CalendarIcon className="h-4 w-4 mr-1" />
+                            {new Date(task.dueDate).toLocaleDateString()}
+                          </div>
+                        )}
+                        <div className="flex items-center">
+                          <UserGroupIcon className="h-4 w-4 mr-1" />
+                          {getUserDisplayName(task.assignedTo)}
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-2">
+                        <div className="flex items-center text-gray-400">
+                          <ChatBubbleLeftIcon className="h-4 w-4 mr-1" />
+                          <span className="text-xs">0</span>
+                        </div>
+                        <div className="flex items-center text-gray-400">
+                          <PaperClipIcon className="h-4 w-4 mr-1" />
+                          <span className="text-xs">0</span>
+                        </div>
+                        <EyeIcon className="h-4 w-4 text-gray-400" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <div className="card text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <ClockIcon className="h-8 w-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">No tasks found</h3>
+              <p className="text-gray-500 mb-4">
+                {searchTerm || Object.values(filters).some(f => f !== 'all') 
+                  ? 'Try adjusting your search or filters' 
+                  : 'Get started by creating your first task'
+                }
+              </p>
+              {!searchTerm && Object.values(filters).every(f => f === 'all') && (
+                <button
+                  onClick={() => setIsNewTaskModalOpen(true)}
+                  className="btn-primary"
+                >
+                  <PlusIcon className="h-5 w-5 mr-2" />
+                  Create Task
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Task Details Modal */}
+        {selectedTask && (
+          <TaskDetails
+            isOpen={isTaskDetailsOpen}
+            onClose={() => {
+              setIsTaskDetailsOpen(false);
+              setSelectedTask(null);
+            }}
+            task={selectedTask}
+            onTaskUpdate={(updatedTask) => {
+              // Handle task updates if needed
+              console.log('Task updated:', updatedTask);
+            }}
+          />
+        )}
 
         {/* New Task Modal */}
         <Transition appear show={isNewTaskModalOpen} as={Fragment}>
-          <Dialog
-            as="div"
-            className="relative z-10"
-            onClose={() => setIsNewTaskModalOpen(false)}
-          >
+          <Dialog as="div" className="relative z-50" onClose={() => setIsNewTaskModalOpen(false)}>
             <Transition.Child
               as={Fragment}
               enter="ease-out duration-300"
@@ -368,11 +564,11 @@ export default function Tasks() {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <div className="fixed inset-0 bg-black bg-opacity-25" />
+              <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm" />
             </Transition.Child>
 
             <div className="fixed inset-0 overflow-y-auto">
-              <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <div className="flex min-h-full items-center justify-center p-4">
                 <Transition.Child
                   as={Fragment}
                   enter="ease-out duration-300"
@@ -382,129 +578,122 @@ export default function Tasks() {
                   leaveFrom="opacity-100 scale-100"
                   leaveTo="opacity-0 scale-95"
                 >
-                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                    <Dialog.Title
-                      as="h3"
-                      className="text-lg font-medium leading-6 text-gray-900"
-                    >
-                      Create New Task
-                    </Dialog.Title>
+                  <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white shadow-xl transition-all">
+                    <div className="bg-gradient-to-r from-primary-50 to-primary-100 px-6 py-4 border-b border-primary-200">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="p-2 bg-primary-500 rounded-lg">
+                            <PlusIcon className="h-6 w-6 text-white" />
+                          </div>
+                          <Dialog.Title className="text-xl font-bold text-gray-900">
+                            Create New Task
+                          </Dialog.Title>
+                        </div>
+                        <button
+                          onClick={() => setIsNewTaskModalOpen(false)}
+                          className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-white/50 transition-colors"
+                        >
+                          <XMarkIcon className="h-6 w-6" />
+                        </button>
+                      </div>
+                    </div>
 
-                    <form onSubmit={handleNewTaskSubmit} className="mt-4 space-y-4">
+                    <form onSubmit={handleNewTaskSubmit} className="p-6 space-y-6">
+                      {error && (
+                        <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+                          <p className="text-error-800">{error}</p>
+                        </div>
+                      )}
+
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Title
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Task Title</label>
                         <input
                           type="text"
-                          required
                           value={newTask.title}
-                          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                          onChange={(e) => setNewTask({...newTask, title: e.target.value})}
+                          className="input"
+                          placeholder="Enter task title"
+                          required
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Description
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
                         <textarea
                           value={newTask.description}
-                          onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-                          rows={3}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                          onChange={(e) => setNewTask({...newTask, description: e.target.value})}
+                          className="input resize-none"
+                          placeholder="Enter task description"
+                          rows="3"
                         />
                       </div>
 
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            Priority
-                          </label>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Priority</label>
                           <select
                             value={newTask.priority}
-                            onChange={(e) => setNewTask({ ...newTask, priority: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                            onChange={(e) => setNewTask({...newTask, priority: e.target.value})}
+                            className="input"
                           >
-                            <option value="high">High</option>
-                            <option value="medium">Medium</option>
                             <option value="low">Low</option>
+                            <option value="medium">Medium</option>
+                            <option value="high">High</option>
                           </select>
                         </div>
 
                         <div>
-                          <label className="block text-sm font-medium text-gray-700">
-                            Category
-                          </label>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
                           <select
                             value={newTask.category}
-                            onChange={(e) => setNewTask({ ...newTask, category: e.target.value })}
-                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                            onChange={(e) => setNewTask({...newTask, category: e.target.value})}
+                            className="input"
                           >
                             <option value="development">Development</option>
                             <option value="design">Design</option>
                             <option value="marketing">Marketing</option>
+                            <option value="work">Work</option>
                           </select>
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Due Date
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Due Date</label>
                         <input
-                          type="date"
-                          required
+                          type="datetime-local"
                           value={newTask.dueDate}
-                          onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                          onChange={(e) => setNewTask({...newTask, dueDate: e.target.value})}
+                          className="input"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Project
-                        </label>
-                        <select
-                          value={newTask.project}
-                          onChange={(e) => setNewTask({ ...newTask, project: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                        >
-                          <option value="">Select a project</option>
-                          <option value="Website Redesign">Website Redesign</option>
-                          <option value="Mobile App Development">Mobile App Development</option>
-                          <option value="Marketing Campaign">Marketing Campaign</option>
-                        </select>
-                      </div>
-
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700">
-                          Assign To
-                        </label>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">Assign To</label>
                         <select
                           value={newTask.assignedTo}
-                          onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
-                          className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                          onChange={(e) => setNewTask({...newTask, assignedTo: e.target.value})}
+                          className="input"
                         >
-                          <option value="">Select a team member</option>
-                          <option value="John Doe">John Doe</option>
-                          <option value="Jane Smith">Jane Smith</option>
-                          <option value="Mike Johnson">Mike Johnson</option>
-                          <option value="Sarah Wilson">Sarah Wilson</option>
+                          <option value="">Assign to yourself</option>
+                          {users.map(user => (
+                            <option key={user.id} value={user.uid || user.id}>
+                              {user.displayName}
+                            </option>
+                          ))}
                         </select>
                       </div>
 
-                      <div className="mt-6 flex justify-end space-x-3">
+                      <div className="flex items-center justify-end space-x-3 pt-4">
                         <button
                           type="button"
                           onClick={() => setIsNewTaskModalOpen(false)}
-                          className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                          className="btn-secondary"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
-                          className="inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+                          className="btn-primary hover-glow"
                         >
                           Create Task
                         </button>
@@ -516,66 +705,6 @@ export default function Tasks() {
             </div>
           </Dialog>
         </Transition>
-
-        {/* Tasks List */}
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
-            {sortedTasks.map(task => (
-              <li key={task.id}>
-                <div className="px-4 py-4 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <CheckCircleIcon
-                        className={`h-5 w-5 ${
-                          task.status === 'completed'
-                            ? 'text-green-500'
-                            : 'text-gray-300'
-                        }`}
-                      />
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">
-                          {task.title}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {task.description}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(task.status)}`}>
-                        {task.status}
-                      </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryColor(task.category)}`}>
-                        {task.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mt-2 sm:flex sm:justify-between">
-                    <div className="sm:flex">
-                      <p className="flex items-center text-sm text-gray-500">
-                        <TagIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                        {task.project}
-                      </p>
-                      <p className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0 sm:ml-6">
-                        <UserGroupIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                        {task.assignedTo}
-                      </p>
-                    </div>
-                    <div className="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
-                      <CalendarIcon className="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400" />
-                      <p>
-                        Due {task.dueDate.toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </DashboardLayout>
   );
