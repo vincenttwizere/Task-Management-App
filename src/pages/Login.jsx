@@ -35,40 +35,46 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-6">
-        <div className="card text-center">
-          <div className="mb-6">
-            <div className="mx-auto h-12 w-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
-              <svg className="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 bg-pattern opacity-30"></div>
+      <div className="absolute top-0 left-0 w-72 h-72 bg-primary-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow"></div>
+      <div className="absolute top-0 right-0 w-72 h-72 bg-accent-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow" style={{ animationDelay: '1s' }}></div>
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
+      
+      <div className="max-w-md w-full space-y-6 relative z-10">
+        <div className="card-elevated text-center hover-lift">
+          <div className="mb-8">
+            <div className="mx-auto h-16 w-16 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6 shadow-soft">
+              <svg className="h-8 w-8 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-3 text-shadow">
               Welcome back
             </h2>
-            <p className="text-lg text-gray-600">
+            <p className="text-lg text-gray-600 leading-relaxed">
               Sign in to your TaskFlow account
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {error && (
-              <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+              <div className="bg-gradient-to-r from-error-50 to-error-100 border border-error-200 rounded-xl p-4 shadow-soft">
                 <div className="flex">
                   <div className="flex-shrink-0">
-                    <ExclamationTriangleIcon className="h-5 w-5 text-error-400" />
+                    <ExclamationTriangleIcon className="h-5 w-5 text-error-500" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-base text-error-800">{error}</p>
+                    <p className="text-base text-error-800 font-medium">{error}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
-                <label htmlFor="email-address" className="block text-base font-medium text-gray-700 mb-1">
+                <label htmlFor="email-address" className="block text-base font-semibold text-gray-700 mb-2">
                   Email address
                 </label>
                 <input
@@ -77,14 +83,14 @@ export default function Login() {
                   type="email"
                   autoComplete="email"
                   required
-                  className="input"
+                  className="input focus-ring"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-base font-medium text-gray-700 mb-1">
+                <label htmlFor="password" className="block text-base font-semibold text-gray-700 mb-2">
                   Password
                 </label>
                 <input
@@ -93,7 +99,7 @@ export default function Login() {
                   type="password"
                   autoComplete="current-password"
                   required
-                  className="input"
+                  className="input focus-ring"
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -104,15 +110,15 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary w-full"
+              className="btn-primary w-full hover-glow"
             >
               {loading ? (
                 <div className="flex items-center">
-                  <div className="loading-spinner w-4 h-4 mr-2"></div>
-                  Signing in...
+                  <div className="loading-spinner w-5 h-5 mr-3"></div>
+                  <span className="font-semibold">Signing in...</span>
                 </div>
               ) : (
-                'Sign in'
+                <span className="font-semibold">Sign in</span>
               )}
             </button>
 
@@ -121,17 +127,17 @@ export default function Login() {
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
+                  className="font-semibold text-gradient hover:opacity-80 transition-opacity"
                 >
                   Sign up
                 </Link>
               </p>
             </div>
 
-            <div className="divider"></div>
+            <div className="divider-gradient"></div>
 
             <div className="text-center">
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
                 For development, you can use any email/password combination
               </p>
             </div>

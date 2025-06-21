@@ -91,23 +91,23 @@ export default function Dashboard() {
 
   return (
     <DashboardLayout>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {/* Header with Actions */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-6 sm:space-y-0">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
-            <p className="mt-1 text-lg text-gray-600">Welcome back! Here's what's happening with your projects.</p>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 text-shadow">Dashboard</h1>
+            <p className="text-lg text-gray-600 leading-relaxed">Welcome back! Here's what's happening with your projects.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg transition-colors"
+                className="relative p-3 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-xl transition-all duration-200 hover:bg-gray-100 hover-lift"
               >
                 <BellIcon className="h-6 w-6" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error-500 rounded-full">
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error-500 rounded-full shadow-lg">
                     {unreadNotificationsCount}
                   </span>
                 )}
@@ -115,7 +115,7 @@ export default function Dashboard() {
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-strong py-1 z-10 ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-xl py-1 z-50 ring-1 ring-black ring-opacity-5 border border-gray-100">
                   <div className="px-4 py-3 border-b border-gray-200">
                     <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
                   </div>
@@ -124,8 +124,8 @@ export default function Dashboard() {
                       notifications.map(notification => (
                         <div
                           key={notification.id}
-                          className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                            !notification.read ? 'bg-primary-50' : ''
+                          className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-all duration-200 ${
+                            !notification.read ? 'bg-gradient-to-r from-primary-50 to-primary-100' : ''
                           }`}
                           onClick={() => markNotificationAsReadHandler(notification.id)}
                         >
@@ -160,24 +160,24 @@ export default function Dashboard() {
             </div>
 
             {/* Quick Actions */}
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               <button
                 onClick={handleAddTask}
-                className="btn-primary"
+                className="btn-primary hover-glow"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 New Task
               </button>
               <button
                 onClick={handleAddProject}
-                className="btn-secondary"
+                className="btn-secondary hover-lift"
               >
                 <FolderIcon className="h-5 w-5 mr-2" />
                 New Project
               </button>
               <button
                 onClick={handleAddTeamMember}
-                className="btn-outline"
+                className="btn-outline hover-glow"
               >
                 <UserPlusIcon className="h-5 w-5 mr-2" />
                 Add Team Member
@@ -187,30 +187,30 @@ export default function Dashboard() {
         </div>
 
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {/* Tasks Overview */}
           <Link
             to="/tasks"
-            className="card group"
+            className="card group hover-lift"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
-                  <ClipboardDocumentListIcon className="h-6 w-6 text-primary-600" />
+                <div className="h-12 w-12 bg-gradient-to-br from-primary-100 to-primary-200 rounded-xl flex items-center justify-center group-hover:from-primary-200 group-hover:to-primary-300 transition-all duration-300 shadow-soft">
+                  <ClipboardDocumentListIcon className="h-7 w-7 text-primary-600" />
                 </div>
-                <h2 className="ml-3 text-xl font-semibold text-gray-900">Tasks</h2>
+                <h2 className="ml-4 text-xl font-bold text-gray-900">Tasks</h2>
               </div>
               <span className="badge-primary">
                 12 Active
               </span>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-base text-gray-600">
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-base text-gray-600 mb-3">
                 <span>Completion Rate</span>
-                <span className="font-semibold">75%</span>
+                <span className="font-bold text-primary-600">75%</span>
               </div>
-              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-primary-500 h-2 rounded-full transition-all duration-300" style={{ width: '75%' }}></div>
+              <div className="progress-bar">
+                <div className="progress-fill" style={{ width: '75%' }}></div>
               </div>
             </div>
           </Link>
@@ -218,26 +218,26 @@ export default function Dashboard() {
           {/* Projects Overview */}
           <Link
             to="/projects"
-            className="card group"
+            className="card group hover-lift"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-success-100 rounded-lg flex items-center justify-center group-hover:bg-success-200 transition-colors">
-                  <FolderIcon className="h-6 w-6 text-success-600" />
+                <div className="h-12 w-12 bg-gradient-to-br from-success-100 to-success-200 rounded-xl flex items-center justify-center group-hover:from-success-200 group-hover:to-success-300 transition-all duration-300 shadow-soft">
+                  <FolderIcon className="h-7 w-7 text-success-600" />
                 </div>
-                <h2 className="ml-3 text-xl font-semibold text-gray-900">Projects</h2>
+                <h2 className="ml-4 text-xl font-bold text-gray-900">Projects</h2>
               </div>
               <span className="badge-success">
                 3 Active
               </span>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-base text-gray-600">
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-base text-gray-600 mb-3">
                 <span>Overall Progress</span>
-                <span className="font-semibold">45%</span>
+                <span className="font-bold text-success-600">45%</span>
               </div>
-              <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-success-500 h-2 rounded-full transition-all duration-300" style={{ width: '45%' }}></div>
+              <div className="progress-bar">
+                <div className="progress-fill bg-gradient-to-r from-success-500 to-success-600" style={{ width: '45%' }}></div>
               </div>
             </div>
           </Link>
@@ -245,31 +245,31 @@ export default function Dashboard() {
           {/* Calendar Overview */}
           <Link
             to="/calendar"
-            className="card group"
+            className="card group hover-lift"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-warning-100 rounded-lg flex items-center justify-center group-hover:bg-warning-200 transition-colors">
-                  <CalendarIcon className="h-6 w-6 text-warning-600" />
+                <div className="h-12 w-12 bg-gradient-to-br from-warning-100 to-warning-200 rounded-xl flex items-center justify-center group-hover:from-warning-200 group-hover:to-warning-300 transition-all duration-300 shadow-soft">
+                  <CalendarIcon className="h-7 w-7 text-warning-600" />
                 </div>
-                <h2 className="ml-3 text-xl font-semibold text-gray-900">Calendar</h2>
+                <h2 className="ml-4 text-xl font-bold text-gray-900">Calendar</h2>
               </div>
               <span className="badge-warning">
                 5 Today
               </span>
             </div>
-            <div className="mt-4">
-              <div className="flex items-center justify-between text-base text-gray-600">
+            <div className="mt-6">
+              <div className="flex items-center justify-between text-base text-gray-600 mb-4">
                 <span>Upcoming Tasks</span>
-                <span className="font-semibold">12</span>
+                <span className="font-bold text-warning-600">12</span>
               </div>
-              <div className="mt-2 space-y-2">
+              <div className="space-y-3">
                 <div className="flex items-center text-base text-gray-600">
-                  <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
+                  <ClockIcon className="h-4 w-4 text-gray-400 mr-3" />
                   <span>3 tasks due tomorrow</span>
                 </div>
                 <div className="flex items-center text-base text-gray-600">
-                  <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
+                  <ClockIcon className="h-4 w-4 text-gray-400 mr-3" />
                   <span>4 tasks this week</span>
                 </div>
               </div>
@@ -279,27 +279,27 @@ export default function Dashboard() {
           {/* Analytics Overview */}
           <Link
             to="/analytics"
-            className="card group"
+            className="card group hover-lift"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-error-100 rounded-lg flex items-center justify-center group-hover:bg-error-200 transition-colors">
-                  <ChartBarIcon className="h-6 w-6 text-error-600" />
+                <div className="h-12 w-12 bg-gradient-to-br from-error-100 to-error-200 rounded-xl flex items-center justify-center group-hover:from-error-200 group-hover:to-error-300 transition-all duration-300 shadow-soft">
+                  <ChartBarIcon className="h-7 w-7 text-error-600" />
                 </div>
-                <h2 className="ml-3 text-xl font-semibold text-gray-900">Analytics</h2>
+                <h2 className="ml-4 text-xl font-bold text-gray-900">Analytics</h2>
               </div>
               <span className="badge-error">
                 Updated
               </span>
             </div>
-            <div className="mt-4">
-              <div className="grid grid-cols-2 gap-4">
+            <div className="mt-6">
+              <div className="grid grid-cols-2 gap-6">
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-900">85%</p>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">85%</p>
                   <p className="text-base text-gray-600">Productivity</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl font-bold text-gray-900">92%</p>
+                  <p className="text-3xl font-bold text-gray-900 mb-1">92%</p>
                   <p className="text-base text-gray-600">On-time Delivery</p>
                 </div>
               </div>
@@ -309,47 +309,47 @@ export default function Dashboard() {
           {/* Team Overview */}
           <Link
             to="/projects"
-            className="card group"
+            className="card group hover-lift"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-accent-100 rounded-lg flex items-center justify-center group-hover:bg-accent-200 transition-colors">
-                  <UserGroupIcon className="h-6 w-6 text-accent-600" />
+                <div className="h-12 w-12 bg-gradient-to-br from-accent-100 to-accent-200 rounded-xl flex items-center justify-center group-hover:from-accent-200 group-hover:to-accent-300 transition-all duration-300 shadow-soft">
+                  <UserGroupIcon className="h-7 w-7 text-accent-600" />
                 </div>
-                <h2 className="ml-3 text-xl font-semibold text-gray-900">Team</h2>
+                <h2 className="ml-4 text-xl font-bold text-gray-900">Team</h2>
               </div>
               <span className="badge-gray">
                 6 Members
               </span>
             </div>
-            <div className="mt-4">
-              <div className="flex -space-x-2">
+            <div className="mt-6">
+              <div className="flex -space-x-2 mb-4">
                 {['John', 'Jane', 'Mike', 'Sarah', 'Emily', 'David'].map((name, index) => (
                   <div
                     key={index}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 border-2 border-white text-primary-700 font-medium"
+                    className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 border-2 border-white text-primary-700 font-semibold shadow-soft"
                   >
-                    <span className="text-xs">
+                    <span className="text-sm">
                       {name[0]}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="mt-2 text-base text-gray-600">
+              <div className="text-base text-gray-600">
                 <span>Active members in 3 projects</span>
               </div>
             </div>
           </Link>
 
           {/* Recent Activity */}
-          <div className="card">
+          <div className="card hover-lift">
             <div className="flex items-center">
-              <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                <ClockIcon className="h-6 w-6 text-gray-600" />
+              <div className="h-12 w-12 bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center shadow-soft">
+                <ClockIcon className="h-7 w-7 text-gray-600" />
               </div>
-              <h2 className="ml-3 text-xl font-semibold text-gray-900">Recent Activity</h2>
+              <h2 className="ml-4 text-xl font-bold text-gray-900">Recent Activity</h2>
             </div>
-            <div className="mt-4 space-y-4">
+            <div className="mt-6 space-y-5">
               {[
                 {
                   action: 'Task completed',
@@ -373,16 +373,16 @@ export default function Dashboard() {
                   color: 'text-warning-500'
                 }
               ].map((activity, index) => (
-                <div key={index} className="flex items-start">
-                  <activity.icon className={`h-5 w-5 ${activity.color} mt-0.5`} />
-                  <div className="ml-3">
-                    <p className="text-base font-medium text-gray-900">
+                <div key={index} className="flex items-start group/item">
+                  <activity.icon className={`h-5 w-5 ${activity.color} mt-1 mr-3 group-hover/item:scale-110 transition-transform duration-200`} />
+                  <div className="flex-1">
+                    <p className="text-base font-semibold text-gray-900">
                       {activity.action}
                     </p>
                     <p className="text-base text-gray-600">
                       {activity.description}
                     </p>
-                    <p className="text-sm text-gray-400">
+                    <p className="text-sm text-gray-400 mt-1">
                       {activity.time}
                     </p>
                   </div>
