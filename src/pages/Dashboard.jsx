@@ -95,15 +95,15 @@ export default function Dashboard() {
         {/* Header with Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="mt-1 text-gray-600">Welcome back! Here's what's happening with your projects.</p>
+            <h1 className="text-4xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-1 text-lg text-gray-600">Welcome back! Here's what's happening with your projects.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             {/* Notifications */}
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500 rounded-lg transition-colors"
+                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-lg transition-colors"
               >
                 <BellIcon className="h-6 w-6" />
                 {unreadNotificationsCount > 0 && (
@@ -117,7 +117,7 @@ export default function Dashboard() {
               {showNotifications && (
                 <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-strong py-1 z-10 ring-1 ring-black ring-opacity-5">
                   <div className="px-4 py-3 border-b border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                    <h3 className="text-base font-semibold text-gray-900">Notifications</h3>
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
@@ -125,24 +125,24 @@ export default function Dashboard() {
                         <div
                           key={notification.id}
                           className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
-                            !notification.read ? 'bg-accent-50' : ''
+                            !notification.read ? 'bg-primary-50' : ''
                           }`}
                           onClick={() => markNotificationAsReadHandler(notification.id)}
                         >
                           <div className="flex items-start">
                             <div className="flex-shrink-0">
-                              {notification.type === 'task' && <ClipboardDocumentListIcon className="h-5 w-5 text-accent-500" />}
+                              {notification.type === 'task' && <ClipboardDocumentListIcon className="h-5 w-5 text-primary-500" />}
                               {notification.type === 'project' && <FolderIcon className="h-5 w-5 text-success-500" />}
                               {notification.type === 'team' && <UserGroupIcon className="h-5 w-5 text-warning-500" />}
                             </div>
                             <div className="ml-3 w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-900">
+                              <p className="text-base font-medium text-gray-900">
                                 {notification.title}
                               </p>
-                              <p className="mt-1 text-sm text-gray-500">
+                              <p className="mt-1 text-base text-gray-500">
                                 {notification.message}
                               </p>
-                              <p className="mt-1 text-xs text-gray-400">
+                              <p className="mt-1 text-sm text-gray-400">
                                 {notification.time}
                               </p>
                             </div>
@@ -150,7 +150,7 @@ export default function Dashboard() {
                         </div>
                       ))
                     ) : (
-                      <div className="px-4 py-3 text-sm text-gray-500">
+                      <div className="px-4 py-3 text-base text-gray-500">
                         No notifications
                       </div>
                     )}
@@ -195,22 +195,22 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-accent-100 rounded-lg flex items-center justify-center group-hover:bg-accent-200 transition-colors">
-                  <ClipboardDocumentListIcon className="h-6 w-6 text-accent-600" />
+                <div className="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                  <ClipboardDocumentListIcon className="h-6 w-6 text-primary-600" />
                 </div>
-                <h2 className="ml-3 text-lg font-semibold text-gray-900">Tasks</h2>
+                <h2 className="ml-3 text-xl font-semibold text-gray-900">Tasks</h2>
               </div>
               <span className="badge-primary">
                 12 Active
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-base text-gray-600">
                 <span>Completion Rate</span>
                 <span className="font-semibold">75%</span>
               </div>
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-accent-500 h-2 rounded-full transition-all duration-300" style={{ width: '75%' }}></div>
+                <div className="bg-primary-500 h-2 rounded-full transition-all duration-300" style={{ width: '75%' }}></div>
               </div>
             </div>
           </Link>
@@ -225,14 +225,14 @@ export default function Dashboard() {
                 <div className="h-10 w-10 bg-success-100 rounded-lg flex items-center justify-center group-hover:bg-success-200 transition-colors">
                   <FolderIcon className="h-6 w-6 text-success-600" />
                 </div>
-                <h2 className="ml-3 text-lg font-semibold text-gray-900">Projects</h2>
+                <h2 className="ml-3 text-xl font-semibold text-gray-900">Projects</h2>
               </div>
               <span className="badge-success">
                 3 Active
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-base text-gray-600">
                 <span>Overall Progress</span>
                 <span className="font-semibold">45%</span>
               </div>
@@ -252,23 +252,23 @@ export default function Dashboard() {
                 <div className="h-10 w-10 bg-warning-100 rounded-lg flex items-center justify-center group-hover:bg-warning-200 transition-colors">
                   <CalendarIcon className="h-6 w-6 text-warning-600" />
                 </div>
-                <h2 className="ml-3 text-lg font-semibold text-gray-900">Calendar</h2>
+                <h2 className="ml-3 text-xl font-semibold text-gray-900">Calendar</h2>
               </div>
               <span className="badge-warning">
                 5 Today
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
+              <div className="flex items-center justify-between text-base text-gray-600">
                 <span>Upcoming Tasks</span>
                 <span className="font-semibold">12</span>
               </div>
               <div className="mt-2 space-y-2">
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-base text-gray-600">
                   <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
                   <span>3 tasks due tomorrow</span>
                 </div>
-                <div className="flex items-center text-sm text-gray-600">
+                <div className="flex items-center text-base text-gray-600">
                   <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
                   <span>4 tasks this week</span>
                 </div>
@@ -286,7 +286,7 @@ export default function Dashboard() {
                 <div className="h-10 w-10 bg-error-100 rounded-lg flex items-center justify-center group-hover:bg-error-200 transition-colors">
                   <ChartBarIcon className="h-6 w-6 text-error-600" />
                 </div>
-                <h2 className="ml-3 text-lg font-semibold text-gray-900">Analytics</h2>
+                <h2 className="ml-3 text-xl font-semibold text-gray-900">Analytics</h2>
               </div>
               <span className="badge-error">
                 Updated
@@ -295,12 +295,12 @@ export default function Dashboard() {
             <div className="mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">85%</p>
-                  <p className="text-sm text-gray-600">Productivity</p>
+                  <p className="text-3xl font-bold text-gray-900">85%</p>
+                  <p className="text-base text-gray-600">Productivity</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-gray-900">92%</p>
-                  <p className="text-sm text-gray-600">On-time Delivery</p>
+                  <p className="text-3xl font-bold text-gray-900">92%</p>
+                  <p className="text-base text-gray-600">On-time Delivery</p>
                 </div>
               </div>
             </div>
@@ -313,10 +313,10 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <div className="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
-                  <UserGroupIcon className="h-6 w-6 text-primary-600" />
+                <div className="h-10 w-10 bg-accent-100 rounded-lg flex items-center justify-center group-hover:bg-accent-200 transition-colors">
+                  <UserGroupIcon className="h-6 w-6 text-accent-600" />
                 </div>
-                <h2 className="ml-3 text-lg font-semibold text-gray-900">Team</h2>
+                <h2 className="ml-3 text-xl font-semibold text-gray-900">Team</h2>
               </div>
               <span className="badge-gray">
                 6 Members
@@ -327,7 +327,7 @@ export default function Dashboard() {
                 {['John', 'Jane', 'Mike', 'Sarah', 'Emily', 'David'].map((name, index) => (
                   <div
                     key={index}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 border-2 border-white text-accent-700 font-medium"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 border-2 border-white text-primary-700 font-medium"
                   >
                     <span className="text-xs">
                       {name[0]}
@@ -335,7 +335,7 @@ export default function Dashboard() {
                   </div>
                 ))}
               </div>
-              <div className="mt-2 text-sm text-gray-600">
+              <div className="mt-2 text-base text-gray-600">
                 <span>Active members in 3 projects</span>
               </div>
             </div>
@@ -347,7 +347,7 @@ export default function Dashboard() {
               <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
                 <ClockIcon className="h-6 w-6 text-gray-600" />
               </div>
-              <h2 className="ml-3 text-lg font-semibold text-gray-900">Recent Activity</h2>
+              <h2 className="ml-3 text-xl font-semibold text-gray-900">Recent Activity</h2>
             </div>
             <div className="mt-4 space-y-4">
               {[
@@ -363,7 +363,7 @@ export default function Dashboard() {
                   description: 'Website Redesign',
                   time: '4 hours ago',
                   icon: FolderIcon,
-                  color: 'text-accent-500'
+                  color: 'text-primary-500'
                 },
                 {
                   action: 'Team member joined',
@@ -376,13 +376,13 @@ export default function Dashboard() {
                 <div key={index} className="flex items-start">
                   <activity.icon className={`h-5 w-5 ${activity.color} mt-0.5`} />
                   <div className="ml-3">
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-base font-medium text-gray-900">
                       {activity.action}
                     </p>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-base text-gray-600">
                       {activity.description}
                     </p>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-sm text-gray-400">
                       {activity.time}
                     </p>
                   </div>

@@ -35,19 +35,19 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6">
         <div className="card text-center">
           <div className="mb-6">
-            <div className="mx-auto h-12 w-12 bg-accent-100 rounded-xl flex items-center justify-center mb-4">
-              <svg className="h-6 w-6 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mx-auto h-12 w-12 bg-primary-100 rounded-xl flex items-center justify-center mb-4">
+              <svg className="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome back
             </h2>
-            <p className="text-gray-600">
+            <p className="text-lg text-gray-600">
               Sign in to your TaskFlow account
             </p>
           </div>
@@ -60,7 +60,7 @@ export default function Login() {
                     <ExclamationTriangleIcon className="h-5 w-5 text-error-400" />
                   </div>
                   <div className="ml-3">
-                    <p className="text-sm text-error-800">{error}</p>
+                    <p className="text-base text-error-800">{error}</p>
                   </div>
                 </div>
               </div>
@@ -68,7 +68,7 @@ export default function Login() {
 
             <div className="space-y-3">
               <div>
-                <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="email-address" className="block text-base font-medium text-gray-700 mb-1">
                   Email address
                 </label>
                 <input
@@ -84,7 +84,7 @@ export default function Login() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                <label htmlFor="password" className="block text-base font-medium text-gray-700 mb-1">
                   Password
                 </label>
                 <input
@@ -117,11 +117,11 @@ export default function Login() {
             </button>
 
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-base text-gray-600">
                 Don't have an account?{' '}
                 <Link
                   to="/register"
-                  className="font-medium text-accent-600 hover:text-accent-500 transition-colors"
+                  className="font-medium text-primary-600 hover:text-primary-500 transition-colors"
                 >
                   Sign up
                 </Link>
@@ -131,7 +131,7 @@ export default function Login() {
             <div className="divider"></div>
 
             <div className="text-center">
-              <p className="text-xs text-gray-500">
+              <p className="text-sm text-gray-500">
                 For development, you can use any email/password combination
               </p>
             </div>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,7 +6,7 @@
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Roboto', system-ui, sans-serif;
   }
   
   body {
@@ -30,11 +30,11 @@
 
   /* Modern Button Components */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 text-base font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
   }
 
   .btn-primary {
-    @apply btn bg-accent-500 text-white hover:bg-accent-600 focus:ring-accent-500 shadow-sm hover:shadow-md;
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-500 shadow-sm hover:shadow-md;
   }
 
   .btn-secondary {
@@ -50,16 +50,16 @@
   }
 
   .btn-sm {
-    @apply px-3 py-1.5 text-xs;
+    @apply px-3 py-1.5 text-sm;
   }
 
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-6 py-3 text-lg;
   }
 
   /* Modern Input Components */
   .input {
-    @apply w-full px-3 py-2.5 text-sm bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500 focus:border-accent-500 transition-all duration-200 placeholder:text-gray-400;
+    @apply w-full px-3 py-2.5 text-base bg-white border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200 placeholder:text-gray-400;
   }
 
   .input-error {
@@ -68,11 +68,11 @@
 
   /* Modern Badge Components */
   .badge {
-    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium;
   }
 
   .badge-primary {
-    @apply badge bg-accent-100 text-accent-800;
+    @apply badge bg-primary-100 text-primary-800;
   }
 
   .badge-success {
@@ -93,11 +93,11 @@
 
   /* Modern Navigation */
   .nav-link {
-    @apply flex items-center px-3 py-2 text-sm font-medium rounded-lg transition-all duration-200;
+    @apply flex items-center px-3 py-2 text-base font-medium rounded-lg transition-all duration-200;
   }
 
   .nav-link-active {
-    @apply nav-link bg-accent-50 text-accent-700;
+    @apply nav-link bg-primary-50 text-primary-700;
   }
 
   .nav-link-inactive {
@@ -114,7 +114,7 @@
   }
 
   .table-header-cell {
-    @apply px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    @apply px-6 py-3 text-left text-sm font-medium text-gray-500 uppercase tracking-wider;
   }
 
   .table-body {
@@ -126,7 +126,7 @@
   }
 
   .table-cell {
-    @apply px-6 py-4 whitespace-nowrap text-sm text-gray-900;
+    @apply px-6 py-4 whitespace-nowrap text-base text-gray-900;
   }
 
   /* Modern Modal */
@@ -140,7 +140,7 @@
 
   /* Modern Loading States */
   .loading-spinner {
-    @apply animate-spin rounded-full border-2 border-gray-300 border-t-accent-500;
+    @apply animate-spin rounded-full border-2 border-gray-300 border-t-primary-500;
   }
 
   /* Modern Status Indicators */
@@ -171,7 +171,7 @@
 
   /* Modern Tooltips */
   .tooltip {
-    @apply absolute z-10 px-2 py-1 text-xs font-medium text-white bg-gray-900 rounded-md opacity-0 pointer-events-none transition-opacity duration-200;
+    @apply absolute z-10 px-2 py-1 text-sm font-medium text-white bg-gray-900 rounded-md opacity-0 pointer-events-none transition-opacity duration-200;
   }
 
   .tooltip-visible {
