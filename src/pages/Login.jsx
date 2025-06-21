@@ -35,13 +35,13 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-6">
         <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-4 text-center text-2xl font-extrabold text-gray-900">
             Sign in to TaskFlow
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-1 text-center text-sm text-gray-600">
             Or{' '}
             <Link
               to="/register"
@@ -51,14 +51,14 @@ export default function Login() {
             </Link>
           </p>
         </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="bg-red-50 border border-red-200 rounded-md p-3">
               <div className="flex">
                 <div className="flex-shrink-0">
-                  <CheckCircleIcon className="h-5 w-5 text-red-400" />
+                  <CheckCircleIcon className="h-4 w-4 text-red-400" />
                 </div>
-                <div className="ml-3">
+                <div className="ml-2">
                   <p className="text-sm text-red-800">{error}</p>
                 </div>
               </div>
@@ -110,7 +110,7 @@ export default function Login() {
           </div>
 
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-xs text-gray-600">
               For development, you can use any email/password combination
             </p>
           </div>
