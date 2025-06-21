@@ -83,7 +83,7 @@ export default function Dashboard() {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+          <div className="loading-spinner h-12 w-12"></div>
         </div>
       </DashboardLayout>
     );
@@ -94,43 +94,46 @@ export default function Dashboard() {
       <div className="space-y-6">
         {/* Header with Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
-          <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
+            <p className="mt-1 text-gray-600">Welcome back! Here's what's happening with your projects.</p>
+          </div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
             {/* Notifications */}
             <div className="relative">
-            <button
+              <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
+                className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-accent-500 rounded-lg transition-colors"
               >
                 <BellIcon className="h-6 w-6" />
                 {unreadNotificationsCount > 0 && (
-                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-red-600 rounded-full">
+                  <span className="absolute top-0 right-0 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-error-500 rounded-full">
                     {unreadNotificationsCount}
                   </span>
                 )}
-            </button>
+              </button>
 
               {/* Notifications Dropdown */}
               {showNotifications && (
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg py-1 z-10 ring-1 ring-black ring-opacity-5">
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <h3 className="text-sm font-medium text-gray-900">Notifications</h3>
-          </div>
+                <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-strong py-1 z-10 ring-1 ring-black ring-opacity-5">
+                  <div className="px-4 py-3 border-b border-gray-200">
+                    <h3 className="text-sm font-semibold text-gray-900">Notifications</h3>
+                  </div>
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length > 0 ? (
                       notifications.map(notification => (
                         <div
                           key={notification.id}
-                          className={`px-4 py-3 hover:bg-gray-50 cursor-pointer ${
-                            !notification.read ? 'bg-blue-50' : ''
+                          className={`px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+                            !notification.read ? 'bg-accent-50' : ''
                           }`}
                           onClick={() => markNotificationAsReadHandler(notification.id)}
                         >
                           <div className="flex items-start">
                             <div className="flex-shrink-0">
-                              {notification.type === 'task' && <ClipboardDocumentListIcon className="h-5 w-5 text-blue-500" />}
-                              {notification.type === 'project' && <FolderIcon className="h-5 w-5 text-green-500" />}
-                              {notification.type === 'team' && <UserGroupIcon className="h-5 w-5 text-purple-500" />}
+                              {notification.type === 'task' && <ClipboardDocumentListIcon className="h-5 w-5 text-accent-500" />}
+                              {notification.type === 'project' && <FolderIcon className="h-5 w-5 text-success-500" />}
+                              {notification.type === 'team' && <UserGroupIcon className="h-5 w-5 text-warning-500" />}
                             </div>
                             <div className="ml-3 w-0 flex-1">
                               <p className="text-sm font-medium text-gray-900">
@@ -149,32 +152,32 @@ export default function Dashboard() {
                     ) : (
                       <div className="px-4 py-3 text-sm text-gray-500">
                         No notifications
-            </div>
+                      </div>
                     )}
-            </div>
-          </div>
+                  </div>
+                </div>
               )}
-      </div>
+            </div>
 
             {/* Quick Actions */}
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={handleAddTask}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                className="btn-primary"
               >
                 <PlusIcon className="h-5 w-5 mr-2" />
                 New Task
               </button>
               <button
                 onClick={handleAddProject}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                className="btn-secondary"
               >
                 <FolderIcon className="h-5 w-5 mr-2" />
                 New Project
               </button>
               <button
                 onClick={handleAddTeamMember}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors duration-200"
+                className="btn-outline"
               >
                 <UserPlusIcon className="h-5 w-5 mr-2" />
                 Add Team Member
@@ -188,24 +191,26 @@ export default function Dashboard() {
           {/* Tasks Overview */}
           <Link
             to="/tasks"
-            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+            className="card group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <ClipboardDocumentListIcon className="h-8 w-8 text-blue-500" />
-                <h2 className="ml-3 text-lg font-medium text-gray-900">Tasks</h2>
+                <div className="h-10 w-10 bg-accent-100 rounded-lg flex items-center justify-center group-hover:bg-accent-200 transition-colors">
+                  <ClipboardDocumentListIcon className="h-6 w-6 text-accent-600" />
+                </div>
+                <h2 className="ml-3 text-lg font-semibold text-gray-900">Tasks</h2>
               </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="badge-primary">
                 12 Active
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>Completion Rate</span>
-                <span>75%</span>
+                <span className="font-semibold">75%</span>
               </div>
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-blue-600 h-2 rounded-full" style={{ width: '75%' }}></div>
+                <div className="bg-accent-500 h-2 rounded-full transition-all duration-300" style={{ width: '75%' }}></div>
               </div>
             </div>
           </Link>
@@ -213,24 +218,26 @@ export default function Dashboard() {
           {/* Projects Overview */}
           <Link
             to="/projects"
-            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+            className="card group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <FolderIcon className="h-8 w-8 text-green-500" />
-                <h2 className="ml-3 text-lg font-medium text-gray-900">Projects</h2>
+                <div className="h-10 w-10 bg-success-100 rounded-lg flex items-center justify-center group-hover:bg-success-200 transition-colors">
+                  <FolderIcon className="h-6 w-6 text-success-600" />
+                </div>
+                <h2 className="ml-3 text-lg font-semibold text-gray-900">Projects</h2>
               </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="badge-success">
                 3 Active
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>Overall Progress</span>
-                <span>45%</span>
+                <span className="font-semibold">45%</span>
               </div>
               <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                <div className="bg-green-600 h-2 rounded-full" style={{ width: '45%' }}></div>
+                <div className="bg-success-500 h-2 rounded-full transition-all duration-300" style={{ width: '45%' }}></div>
               </div>
             </div>
           </Link>
@@ -238,28 +245,30 @@ export default function Dashboard() {
           {/* Calendar Overview */}
           <Link
             to="/calendar"
-            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+            className="card group"
           >
-                  <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <CalendarIcon className="h-8 w-8 text-purple-500" />
-                <h2 className="ml-3 text-lg font-medium text-gray-900">Calendar</h2>
+                <div className="h-10 w-10 bg-warning-100 rounded-lg flex items-center justify-center group-hover:bg-warning-200 transition-colors">
+                  <CalendarIcon className="h-6 w-6 text-warning-600" />
+                </div>
+                <h2 className="ml-3 text-lg font-semibold text-gray-900">Calendar</h2>
               </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <span className="badge-warning">
                 5 Today
               </span>
             </div>
             <div className="mt-4">
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-600">
                 <span>Upcoming Tasks</span>
-                <span>12</span>
+                <span className="font-semibold">12</span>
               </div>
               <div className="mt-2 space-y-2">
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm text-gray-600">
                   <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
                   <span>3 tasks due tomorrow</span>
                 </div>
-                <div className="flex items-center text-sm">
+                <div className="flex items-center text-sm text-gray-600">
                   <ClockIcon className="h-4 w-4 text-gray-400 mr-2" />
                   <span>4 tasks this week</span>
                 </div>
@@ -270,26 +279,28 @@ export default function Dashboard() {
           {/* Analytics Overview */}
           <Link
             to="/analytics"
-            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+            className="card group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <ChartBarIcon className="h-8 w-8 text-yellow-500" />
-                <h2 className="ml-3 text-lg font-medium text-gray-900">Analytics</h2>
-                      </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <div className="h-10 w-10 bg-error-100 rounded-lg flex items-center justify-center group-hover:bg-error-200 transition-colors">
+                  <ChartBarIcon className="h-6 w-6 text-error-600" />
+                </div>
+                <h2 className="ml-3 text-lg font-semibold text-gray-900">Analytics</h2>
+              </div>
+              <span className="badge-error">
                 Updated
-                          </span>
+              </span>
             </div>
             <div className="mt-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center">
-                  <p className="text-2xl font-semibold text-gray-900">85%</p>
-                  <p className="text-sm text-gray-500">Productivity</p>
+                  <p className="text-2xl font-bold text-gray-900">85%</p>
+                  <p className="text-sm text-gray-600">Productivity</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-2xl font-semibold text-gray-900">92%</p>
-                  <p className="text-sm text-gray-500">On-time Delivery</p>
+                  <p className="text-2xl font-bold text-gray-900">92%</p>
+                  <p className="text-sm text-gray-600">On-time Delivery</p>
                 </div>
               </div>
             </div>
@@ -298,41 +309,45 @@ export default function Dashboard() {
           {/* Team Overview */}
           <Link
             to="/projects"
-            className="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200"
+            className="card group"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center">
-                <UserGroupIcon className="h-8 w-8 text-red-500" />
-                <h2 className="ml-3 text-lg font-medium text-gray-900">Team</h2>
+                <div className="h-10 w-10 bg-primary-100 rounded-lg flex items-center justify-center group-hover:bg-primary-200 transition-colors">
+                  <UserGroupIcon className="h-6 w-6 text-primary-600" />
+                </div>
+                <h2 className="ml-3 text-lg font-semibold text-gray-900">Team</h2>
               </div>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+              <span className="badge-gray">
                 6 Members
-                          </span>
-                        </div>
+              </span>
+            </div>
             <div className="mt-4">
               <div className="flex -space-x-2">
                 {['John', 'Jane', 'Mike', 'Sarah', 'Emily', 'David'].map((name, index) => (
                   <div
                     key={index}
-                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gray-200 border-2 border-white"
+                    className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-accent-100 border-2 border-white text-accent-700 font-medium"
                   >
-                    <span className="text-xs font-medium text-gray-600">
+                    <span className="text-xs">
                       {name[0]}
-                            </span>
-                          </div>
+                    </span>
+                  </div>
                 ))}
               </div>
-              <div className="mt-2 text-sm text-gray-500">
+              <div className="mt-2 text-sm text-gray-600">
                 <span>Active members in 3 projects</span>
-                      </div>
-                    </div>
+              </div>
+            </div>
           </Link>
 
           {/* Recent Activity */}
-          <div className="block p-6 bg-white rounded-lg shadow">
+          <div className="card">
             <div className="flex items-center">
-              <ClockIcon className="h-8 w-8 text-gray-500" />
-              <h2 className="ml-3 text-lg font-medium text-gray-900">Recent Activity</h2>
+              <div className="h-10 w-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <ClockIcon className="h-6 w-6 text-gray-600" />
+              </div>
+              <h2 className="ml-3 text-lg font-semibold text-gray-900">Recent Activity</h2>
             </div>
             <div className="mt-4 space-y-4">
               {[
@@ -341,21 +356,21 @@ export default function Dashboard() {
                   description: 'Design new homepage',
                   time: '2 hours ago',
                   icon: CheckCircleIcon,
-                  color: 'text-green-500'
+                  color: 'text-success-500'
                 },
                 {
                   action: 'Project updated',
                   description: 'Website Redesign',
                   time: '4 hours ago',
                   icon: FolderIcon,
-                  color: 'text-blue-500'
+                  color: 'text-accent-500'
                 },
                 {
                   action: 'Team member joined',
                   description: 'Sarah Wilson',
                   time: '1 day ago',
                   icon: UserGroupIcon,
-                  color: 'text-purple-500'
+                  color: 'text-warning-500'
                 }
               ].map((activity, index) => (
                 <div key={index} className="flex items-start">
@@ -364,7 +379,7 @@ export default function Dashboard() {
                     <p className="text-sm font-medium text-gray-900">
                       {activity.action}
                     </p>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-gray-600">
                       {activity.description}
                     </p>
                     <p className="text-xs text-gray-400">

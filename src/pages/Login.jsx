@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { CheckCircleIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon } from '@heroicons/react/24/outline';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -35,86 +35,108 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-6">
-        <div>
-          <h2 className="mt-4 text-center text-2xl font-extrabold text-gray-900">
-            Sign in to TaskFlow
-          </h2>
-          <p className="mt-1 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link
-              to="/register"
-              className="font-medium text-primary-600 hover:text-primary-500"
-            >
-              create a new account
-            </Link>
-          </p>
-        </div>
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
-              <div className="flex">
-                <div className="flex-shrink-0">
-                  <CheckCircleIcon className="h-4 w-4 text-red-400" />
-                </div>
-                <div className="ml-2">
-                  <p className="text-sm text-red-800">{error}</p>
-                </div>
-              </div>
+        <div className="card text-center">
+          <div className="mb-6">
+            <div className="mx-auto h-12 w-12 bg-accent-100 rounded-xl flex items-center justify-center mb-4">
+              <svg className="h-6 w-6 text-accent-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
-          )}
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Welcome back
+            </h2>
+            <p className="text-gray-600">
+              Sign in to your TaskFlow account
+            </p>
           </div>
 
-          <div>
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-error-50 border border-error-200 rounded-lg p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <ExclamationTriangleIcon className="h-5 w-5 text-error-400" />
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-error-800">{error}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              <div>
+                <label htmlFor="email-address" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email address
+                </label>
+                <input
+                  id="email-address"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  className="input"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+                  Password
+                </label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  className="input"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              </div>
+            </div>
+
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+              className="btn-primary w-full"
             >
-              {loading ? 'Signing in...' : 'Sign in'}
+              {loading ? (
+                <div className="flex items-center">
+                  <div className="loading-spinner w-4 h-4 mr-2"></div>
+                  Signing in...
+                </div>
+              ) : (
+                'Sign in'
+              )}
             </button>
-          </div>
 
-          <div className="text-center">
-            <p className="text-xs text-gray-600">
-              For development, you can use any email/password combination
-            </p>
-          </div>
-        </form>
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link
+                  to="/register"
+                  className="font-medium text-accent-600 hover:text-accent-500 transition-colors"
+                >
+                  Sign up
+                </Link>
+              </p>
+            </div>
+
+            <div className="divider"></div>
+
+            <div className="text-center">
+              <p className="text-xs text-gray-500">
+                For development, you can use any email/password combination
+              </p>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

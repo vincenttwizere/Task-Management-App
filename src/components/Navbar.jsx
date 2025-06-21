@@ -7,6 +7,7 @@ import {
   CalendarIcon,
   ChartBarIcon,
   ArrowRightOnRectangleIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
@@ -27,77 +28,82 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow">
+    <nav className="bg-white border-b border-gray-200 shadow-soft">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
-          <div className="flex">
+          <div className="flex items-center">
             {/* Logo */}
             <div className="flex-shrink-0 flex items-center">
-              <Link to="/dashboard" className="text-xl font-bold text-primary-600">
-                  TaskFlow
+              <Link to="/dashboard" className="flex items-center space-x-2">
+                <div className="h-8 w-8 bg-accent-500 rounded-lg flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <span className="text-xl font-bold text-gray-900">TaskFlow</span>
               </Link>
             </div>
 
             {/* Navigation Links */}
-            <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
+            <div className="hidden sm:ml-8 sm:flex sm:space-x-1">
               {navigation.map((item) => {
                 const isActive = location.pathname === item.href;
                 return (
-              <Link
+                  <Link
                     key={item.name}
                     to={item.href}
-                    className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
-                      isActive
-                        ? 'border-primary-500 text-gray-900'
-                        : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                    className={`nav-link ${
+                      isActive ? 'nav-link-active' : 'nav-link-inactive'
                     }`}
                   >
-                    <item.icon className="h-5 w-5 mr-1" />
+                    <item.icon className="h-5 w-5 mr-2" />
                     {item.name}
-              </Link>
+                  </Link>
                 );
               })}
             </div>
           </div>
 
           {/* User Menu */}
-                              <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <span className="text-sm text-gray-500 mr-4">
-                Welcome, {currentUser?.displayName || 'User'}
-                                  </span>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
+                <UserCircleIcon className="h-8 w-8 text-gray-400" />
+                <span className="text-sm font-medium text-gray-700">
+                  {currentUser?.displayName || 'User'}
+                </span>
+              </div>
+              <div className="divider-vertical h-6"></div>
               <button
                 onClick={signOut}
-                className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="btn-outline btn-sm"
               >
-                <ArrowRightOnRectangleIcon className="h-5 w-5 mr-1" />
+                <ArrowRightOnRectangleIcon className="h-4 w-4 mr-1" />
                 Sign Out
               </button>
             </div>
           </div>
-                              </div>
-                    </div>
+        </div>
 
-      {/* Mobile menu */}
-      <div className="sm:hidden">
-        <div className="pt-2 pb-3 space-y-1">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`flex items-center px-3 py-2 text-base font-medium ${
-                  isActive
-                    ? 'bg-primary-50 border-primary-500 text-primary-700'
-                    : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
-                }`}
-              >
-                <item.icon className="h-5 w-5 mr-2" />
-                {item.name}
-              </Link>
-            );
-          })}
+        {/* Mobile menu */}
+        <div className="sm:hidden border-t border-gray-200">
+          <div className="pt-2 pb-3 space-y-1">
+            {navigation.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={`nav-link ${
+                    isActive ? 'nav-link-active' : 'nav-link-inactive'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5 mr-2" />
+                  {item.name}
+                </Link>
+              );
+            })}
+          </div>
         </div>
       </div>
     </nav>
