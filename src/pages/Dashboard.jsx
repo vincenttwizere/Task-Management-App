@@ -37,8 +37,6 @@ export default function Dashboard() {
 
     // Subscribe to real-time notifications
     const unsubscribeNotifications = subscribeToNotifications(currentUser.uid, (notificationsData) => {
-      console.log('Notifications updated from subscription:', notificationsData);
-      console.log('Unread count from subscription:', notificationsData.filter(n => !n.read).length);
       setNotifications(notificationsData);
     });
 
@@ -84,7 +82,6 @@ export default function Dashboard() {
             ? { ...notification, read: true }
             : notification
         );
-        console.log('Updated notifications after marking as read:', updatedNotifications);
         return updatedNotifications;
       });
     } catch (error) {
@@ -100,7 +97,6 @@ export default function Dashboard() {
       // Optimistically update the local state for immediate UI feedback
       setNotifications(prevNotifications => {
         const updatedNotifications = prevNotifications.map(notification => ({ ...notification, read: true }));
-        console.log('Updated notifications after marking all as read:', updatedNotifications);
         return updatedNotifications;
       });
     } catch (error) {
@@ -109,10 +105,6 @@ export default function Dashboard() {
   };
 
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
-  
-  // Debug logging
-  console.log('Current notifications:', notifications);
-  console.log('Unread count:', unreadNotificationsCount);
 
   if (loading) {
     return (

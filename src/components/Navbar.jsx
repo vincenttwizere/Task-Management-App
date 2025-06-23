@@ -11,7 +11,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function Navbar() {
-  const { currentUser, signOut } = useAuth();
+  const { currentUser, logout } = useAuth();
   const location = useLocation();
 
   // Don't show navbar on login and register pages
@@ -26,6 +26,14 @@ export default function Navbar() {
     { name: 'Calendar', href: '/calendar', icon: CalendarIcon },
     { name: 'Analytics', href: '/analytics', icon: ChartBarIcon },
   ];
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
 
   return (
     <nav className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-soft sticky top-0 z-40">
@@ -72,12 +80,12 @@ export default function Navbar() {
                   <UserCircleIcon className="h-5 w-5 text-primary-600" />
                 </div>
                 <span className="text-base font-semibold text-gray-700">
-                  {currentUser?.displayName || 'User'}
+                  {currentUser?.displayName || currentUser?.email || 'User'}
                 </span>
               </div>
               <div className="divider-vertical h-8"></div>
               <button
-                onClick={signOut}
+                onClick={handleLogout}
                 className="btn-outline btn-sm hover-glow"
               >
                 <ArrowRightOnRectangleIcon className="h-4 w-4 mr-2" />

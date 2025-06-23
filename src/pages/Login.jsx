@@ -135,12 +135,6 @@ export default function Login() {
             </div>
 
             <div className="divider-gradient"></div>
-
-            <div className="text-center">
-              <p className="text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                For development, you can use any email/password combination
-              </p>
-            </div>
           </form>
         </div>
       </div>

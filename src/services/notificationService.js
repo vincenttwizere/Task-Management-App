@@ -97,13 +97,8 @@ export const subscribeToNotifications = (userId, callback) => {
 
 // Helper function to trigger mock callbacks
 const triggerMockCallbacks = (userId) => {
-  console.log('Triggering mock callbacks for user:', userId);
-  console.log('Number of stored callbacks:', mockCallbacks.length);
   const userNotifications = mockNotifications.filter(n => n.userId === userId || n.userId === 'mock-user');
-  console.log('Filtered notifications for user:', userNotifications);
-  console.log('Unread count in triggerMockCallbacks:', userNotifications.filter(n => !n.read).length);
   mockCallbacks.forEach(callback => {
-    console.log('Calling callback with notifications:', userNotifications);
     callback(userNotifications);
   });
 };
@@ -147,19 +142,13 @@ export const markNotificationAsRead = async (notificationId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Marking mock notification as read:', notificationId);
-      console.log('Current mock notifications:', mockNotifications);
       const notification = mockNotifications.find(n => n.id === notificationId);
-      console.log('Found notification to mark as read:', notification);
       if (notification) {
         notification.read = true;
         notification.readAt = new Date();
-        console.log('Updated notification:', notification);
-        console.log('All notifications after update:', mockNotifications);
         
         // Trigger real-time updates for the user
         triggerMockCallbacks(notification.userId);
-      } else {
-        console.error('Notification not found with ID:', notificationId);
       }
       return Promise.resolve();
     }
