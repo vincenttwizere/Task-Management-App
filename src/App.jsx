@@ -15,7 +15,11 @@ import AcceptInvite from './pages/AcceptInvite';
 function App() {
   const { currentUser, loading } = useAuth();
 
+  console.log('App render - currentUser:', currentUser, 'loading:', loading);
+
+  // Temporary: Always show login for testing
   if (loading) {
+    console.log('App showing loading state');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -26,82 +30,15 @@ function App() {
     );
   }
 
+  console.log('App rendering main content, currentUser:', currentUser);
+
+  // Temporary: Always show login page for testing
   return (
     <div className="App">
       <Routes>
-        {/* Public routes */}
-        <Route 
-          path="/login" 
-          element={currentUser ? <Navigate to="/dashboard" /> : <Login />} 
-        />
-        <Route 
-          path="/register" 
-          element={currentUser ? <Navigate to="/dashboard" /> : <Register />} 
-        />
-        <Route 
-          path="/accept-invite/:token" 
-          element={<AcceptInvite />} 
-        />
-
-        {/* Protected routes */}
-        <Route 
-          path="/dashboard" 
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/tasks" 
-          element={
-            <PrivateRoute>
-              <Tasks />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/projects" 
-          element={
-            <PrivateRoute>
-              <Projects />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/calendar" 
-          element={
-            <PrivateRoute>
-              <Calendar />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/analytics" 
-          element={
-            <PrivateRoute>
-              <Analytics />
-            </PrivateRoute>
-          } 
-        />
-        <Route 
-          path="/team" 
-          element={
-            <PrivateRoute>
-              <TeamManagement />
-            </PrivateRoute>
-          } 
-        />
-
-        {/* Default redirect */}
-        <Route 
-          path="/" 
-          element={<Navigate to={currentUser ? "/dashboard" : "/login"} />} 
-        />
-        <Route 
-          path="*" 
-          element={<Navigate to={currentUser ? "/dashboard" : "/login"} />} 
-        />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </div>
   );

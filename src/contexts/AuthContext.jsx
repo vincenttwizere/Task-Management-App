@@ -99,7 +99,7 @@ export function AuthProvider({ children }) {
     const timeoutId = setTimeout(() => {
       console.log('Auth loading timeout - forcing loading to false');
       setLoading(false);
-    }, 3000); // 3 second timeout
+    }, 2000); // Reduced to 2 second timeout
 
     return () => {
       clearTimeout(timeoutId);
