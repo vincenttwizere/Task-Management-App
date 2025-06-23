@@ -23,24 +23,24 @@ export function AuthProvider({ children }) {
     console.log('Starting signup process...', { email, displayName });
     
     try {
+      setError(null);
+      let result;
+      
       // Check if we're using mock auth
-      if (auth.signInWithEmailAndPassword) {
+      if (auth.createUserWithEmailAndPassword && typeof auth.createUserWithEmailAndPassword === 'function') {
         // Real Firebase auth
-        const result = await createUserWithEmailAndPassword(auth, email, password);
+        result = await createUserWithEmailAndPassword(auth, email, password);
         
         // Update profile with display name
         if (result.user) {
           await updateProfile(result.user, { displayName });
         }
-        
-        setError(null);
-        return result;
       } else {
         // Mock auth
-        const result = await auth.createUserWithEmailAndPassword(auth, email, password);
-        setError(null);
-        return result;
+        result = await auth.createUserWithEmailAndPassword(auth, email, password);
       }
+      
+      return result;
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
@@ -50,18 +50,19 @@ export function AuthProvider({ children }) {
 
   async function login(email, password) {
     try {
+      setError(null);
+      let result;
+      
       // Check if we're using mock auth
-      if (auth.signInWithEmailAndPassword) {
+      if (auth.signInWithEmailAndPassword && typeof auth.signInWithEmailAndPassword === 'function') {
         // Real Firebase auth
-        const result = await signInWithEmailAndPassword(auth, email, password);
-        setError(null);
-        return result;
+        result = await signInWithEmailAndPassword(auth, email, password);
       } else {
         // Mock auth
-        const result = await auth.signInWithEmailAndPassword(auth, email, password);
-        setError(null);
-        return result;
+        result = await auth.signInWithEmailAndPassword(auth, email, password);
       }
+      
+      return result;
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);
@@ -71,8 +72,8 @@ export function AuthProvider({ children }) {
 
   async function logout() {
     try {
-      await signOut(auth);
       setError(null);
+      await signOut(auth);
     } catch (error) {
       console.error('Logout error:', error);
       setError(error.message);

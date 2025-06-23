@@ -19,6 +19,10 @@ const firebaseConfig = {
 const isDevelopment = !process.env.VITE_FIREBASE_API_KEY || 
                      process.env.VITE_FIREBASE_API_KEY === "AIzaSyDummyKeyForDevelopment123456789";
 
+// Mock user storage for development
+let mockCurrentUser = null;
+let mockAuthCallbacks = [];
+
 // Initialize Firebase
 let app;
 let auth;
@@ -33,14 +37,15 @@ try {
     // Create mock services for development
     auth = {
       onAuthStateChanged: (callback) => {
-        // Simulate a logged-out state initially with a small delay
         console.log('Mock auth: Setting up auth state listener');
-        setTimeout(() => {
-          console.log('Mock auth: Calling callback with null (no user)');
-          callback(null);
-        }, 100); // Small delay to simulate real auth
+        mockAuthCallbacks.push(callback);
+        
+        // Call immediately with current state
+        callback(mockCurrentUser);
+        
         return () => {
           console.log('Mock auth: Cleaning up auth state listener');
+          mockAuthCallbacks = mockAuthCallbacks.filter(cb => cb !== callback);
         };
       },
       signInWithEmailAndPassword: async (auth, email, password) => {
@@ -49,25 +54,40 @@ try {
         const mockUser = {
           uid: 'dev-user-123',
           email,
-          displayName: 'Dev User',
+          displayName: email.split('@')[0], // Use email prefix as display name
           reload: async () => Promise.resolve()
         };
+        mockCurrentUser = mockUser;
+        
+        // Trigger auth state change
+        mockAuthCallbacks.forEach(callback => callback(mockUser));
+        
         return { user: mockUser };
       },
       createUserWithEmailAndPassword: async (auth, email, password) => {
         // Simulate successful signup
         console.log('Mock auth: Creating user with', email);
         const mockUser = {
-          uid: 'dev-user-123',
+          uid: 'dev-user-' + Date.now(),
           email,
-          displayName: 'Dev User',
+          displayName: email.split('@')[0], // Use email prefix as display name
           reload: async () => Promise.resolve()
         };
+        mockCurrentUser = mockUser;
+        
+        // Trigger auth state change
+        mockAuthCallbacks.forEach(callback => callback(mockUser));
+        
         return { user: mockUser };
       },
       signOut: async () => {
         // Simulate successful logout
         console.log('Mock auth: Signing out');
+        mockCurrentUser = null;
+        
+        // Trigger auth state change
+        mockAuthCallbacks.forEach(callback => callback(null));
+        
         return Promise.resolve();
       }
     };

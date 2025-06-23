@@ -33,8 +33,9 @@ export default function Register() {
       setError('');
       setLoading(true);
       await signup(email, password, displayName);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error) {
+      console.error('Signup error:', error);
       setError('Failed to create an account. Please try again.');
     } finally {
       setLoading(false);
