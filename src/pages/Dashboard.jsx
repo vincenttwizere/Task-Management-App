@@ -37,7 +37,8 @@ export default function Dashboard() {
 
     // Subscribe to real-time notifications
     const unsubscribeNotifications = subscribeToNotifications(currentUser.uid, (notificationsData) => {
-      console.log('Notifications updated:', notificationsData);
+      console.log('Notifications updated from subscription:', notificationsData);
+      console.log('Unread count from subscription:', notificationsData.filter(n => !n.read).length);
       setNotifications(notificationsData);
     });
 
@@ -77,13 +78,15 @@ export default function Dashboard() {
       await markNotificationAsRead(notificationId);
       
       // Optimistically update the local state for immediate UI feedback
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => 
+      setNotifications(prevNotifications => {
+        const updatedNotifications = prevNotifications.map(notification => 
           notification.id === notificationId 
             ? { ...notification, read: true }
             : notification
-        )
-      );
+        );
+        console.log('Updated notifications after marking as read:', updatedNotifications);
+        return updatedNotifications;
+      });
     } catch (error) {
       console.error('Error marking notification as read:', error);
     }
@@ -95,15 +98,21 @@ export default function Dashboard() {
       await markAllNotificationsAsRead(currentUser.uid);
       
       // Optimistically update the local state for immediate UI feedback
-      setNotifications(prevNotifications => 
-        prevNotifications.map(notification => ({ ...notification, read: true }))
-      );
+      setNotifications(prevNotifications => {
+        const updatedNotifications = prevNotifications.map(notification => ({ ...notification, read: true }));
+        console.log('Updated notifications after marking all as read:', updatedNotifications);
+        return updatedNotifications;
+      });
     } catch (error) {
       console.error('Error marking all notifications as read:', error);
     }
   };
 
   const unreadNotificationsCount = notifications.filter(n => !n.read).length;
+  
+  // Debug logging
+  console.log('Current notifications:', notifications);
+  console.log('Unread count:', unreadNotificationsCount);
 
   if (loading) {
     return (

@@ -51,6 +51,9 @@ let mockNotifications = [
   }
 ];
 
+// Store callbacks for mock real-time updates
+let mockCallbacks = [];
+
 // Real-time notifications listener
 export const subscribeToNotifications = (userId, callback) => {
   if (isMockDb) {
@@ -61,9 +64,14 @@ export const subscribeToNotifications = (userId, callback) => {
     const userNotifications = mockNotifications.filter(n => n.userId === userId || n.userId === 'mock-user');
     callback(userNotifications);
     
+    // Store callback for real-time updates
+    mockCallbacks.push(callback);
+    
     // Return a cleanup function that simulates real-time updates
     return () => {
       console.log('Mock notification subscription cleaned up');
+      // Remove callback from the array
+      mockCallbacks = mockCallbacks.filter(cb => cb !== callback);
     };
   }
 
@@ -87,6 +95,19 @@ export const subscribeToNotifications = (userId, callback) => {
   });
 };
 
+// Helper function to trigger mock callbacks
+const triggerMockCallbacks = (userId) => {
+  console.log('Triggering mock callbacks for user:', userId);
+  console.log('Number of stored callbacks:', mockCallbacks.length);
+  const userNotifications = mockNotifications.filter(n => n.userId === userId || n.userId === 'mock-user');
+  console.log('Filtered notifications for user:', userNotifications);
+  console.log('Unread count in triggerMockCallbacks:', userNotifications.filter(n => !n.read).length);
+  mockCallbacks.forEach(callback => {
+    console.log('Calling callback with notifications:', userNotifications);
+    callback(userNotifications);
+  });
+};
+
 // Create a notification
 export const createNotification = async (notificationData) => {
   try {
@@ -105,6 +126,10 @@ export const createNotification = async (notificationData) => {
         createdAt: new Date()
       };
       mockNotifications.unshift(mockNotification);
+      
+      // Trigger real-time updates
+      triggerMockCallbacks(notificationData.userId);
+      
       return mockNotification;
     }
 
@@ -122,10 +147,19 @@ export const markNotificationAsRead = async (notificationId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Marking mock notification as read:', notificationId);
+      console.log('Current mock notifications:', mockNotifications);
       const notification = mockNotifications.find(n => n.id === notificationId);
+      console.log('Found notification to mark as read:', notification);
       if (notification) {
         notification.read = true;
         notification.readAt = new Date();
+        console.log('Updated notification:', notification);
+        console.log('All notifications after update:', mockNotifications);
+        
+        // Trigger real-time updates for the user
+        triggerMockCallbacks(notification.userId);
+      } else {
+        console.error('Notification not found with ID:', notificationId);
       }
       return Promise.resolve();
     }
@@ -147,12 +181,20 @@ export const markAllNotificationsAsRead = async (userId) => {
     if (isMockDb) {
       // Mock implementation
       console.log('Marking all mock notifications as read for user:', userId);
+      let hasChanges = false;
       mockNotifications.forEach(notification => {
         if ((notification.userId === userId || notification.userId === 'mock-user') && !notification.read) {
           notification.read = true;
           notification.readAt = new Date();
+          hasChanges = true;
         }
       });
+      
+      // Trigger real-time updates if there were changes
+      if (hasChanges) {
+        triggerMockCallbacks(userId);
+      }
+      
       return Promise.resolve();
     }
 
