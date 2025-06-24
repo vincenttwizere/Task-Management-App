@@ -11,6 +11,8 @@ export default function Login() {
   const { login, currentUser } = useAuth();
   const navigate = useNavigate();
 
+  console.log('Login component render - currentUser:', currentUser);
+
   useEffect(() => {
     console.log('Login page loaded, currentUser:', currentUser);
     if (currentUser) {

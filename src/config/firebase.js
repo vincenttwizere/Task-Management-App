@@ -40,8 +40,11 @@ try {
         console.log('Mock auth: Setting up auth state listener');
         mockAuthCallbacks.push(callback);
         
-        // Call immediately with current state
-        callback(mockCurrentUser);
+        // Call immediately with current state (null = no user logged in)
+        setTimeout(() => {
+          console.log('Mock auth: Calling callback with null (no user)');
+          callback(null);
+        }, 100); // Small delay to simulate real auth
         
         return () => {
           console.log('Mock auth: Cleaning up auth state listener');
