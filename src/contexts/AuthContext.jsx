@@ -1,12 +1,4 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import {
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged,
-  updateProfile,
-} from 'firebase/auth';
-import { auth } from '../config/firebase';
 
 const AuthContext = createContext();
 
@@ -16,104 +8,82 @@ export function useAuth() {
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false to avoid loading state
   const [error, setError] = useState(null);
 
   console.log('AuthProvider render - currentUser:', currentUser, 'loading:', loading, 'error:', error);
 
+  // Simple mock authentication functions
   async function signup(email, password, displayName) {
-    console.log('Starting signup process...', { email, displayName });
-    
+    console.log('Mock signup:', { email, displayName });
     try {
       setError(null);
-      let result;
+      setLoading(true);
       
-      // Check if we're using mock auth
-      if (auth.createUserWithEmailAndPassword && typeof auth.createUserWithEmailAndPassword === 'function') {
-        // Real Firebase auth
-        result = await createUserWithEmailAndPassword(auth, email, password);
-        
-        // Update profile with display name
-        if (result.user) {
-          await updateProfile(result.user, { displayName });
-        }
-      } else {
-        // Mock auth
-        result = await auth.createUserWithEmailAndPassword(auth, email, password);
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      return result;
+      const mockUser = {
+        uid: 'user-' + Date.now(),
+        email,
+        displayName
+      };
+      
+      setCurrentUser(mockUser);
+      setLoading(false);
+      return { user: mockUser };
     } catch (error) {
       console.error('Signup error:', error);
       setError(error.message);
+      setLoading(false);
       throw error;
     }
   }
 
   async function login(email, password) {
+    console.log('Mock login:', { email });
     try {
       setError(null);
-      let result;
+      setLoading(true);
       
-      // Check if we're using mock auth
-      if (auth.signInWithEmailAndPassword && typeof auth.signInWithEmailAndPassword === 'function') {
-        // Real Firebase auth
-        result = await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        // Mock auth
-        result = await auth.signInWithEmailAndPassword(auth, email, password);
-      }
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      return result;
+      const mockUser = {
+        uid: 'user-' + Date.now(),
+        email,
+        displayName: email.split('@')[0]
+      };
+      
+      setCurrentUser(mockUser);
+      setLoading(false);
+      return { user: mockUser };
     } catch (error) {
       console.error('Login error:', error);
       setError(error.message);
+      setLoading(false);
       throw error;
     }
   }
 
   async function logout() {
+    console.log('Mock logout');
     try {
       setError(null);
-      await signOut(auth);
+      setLoading(true);
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      setCurrentUser(null);
+      setLoading(false);
     } catch (error) {
       console.error('Logout error:', error);
       setError(error.message);
+      setLoading(false);
       throw error;
     }
   }
-
-  useEffect(() => {
-    console.log('Setting up auth state listener...');
-    
-    try {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
-        console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
-        setCurrentUser(user);
-        setLoading(false);
-        setError(null);
-      }, (error) => {
-        console.error('Auth state change error:', error);
-        setError(error.message);
-        setLoading(false);
-      });
-
-      // Add a timeout to prevent infinite loading
-      const timeoutId = setTimeout(() => {
-        console.log('Auth loading timeout - forcing loading to false');
-        setLoading(false);
-      }, 2000); // Reduced to 2 second timeout
-
-      return () => {
-        clearTimeout(timeoutId);
-        unsubscribe();
-      };
-    } catch (error) {
-      console.error('Error in auth useEffect:', error);
-      setLoading(false);
-      setError('Authentication initialization failed');
-    }
-  }, []);
 
   const value = {
     currentUser,
