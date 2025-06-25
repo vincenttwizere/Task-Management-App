@@ -86,27 +86,33 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     console.log('Setting up auth state listener...');
     
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
-      setCurrentUser(user);
-      setLoading(false);
-      setError(null);
-    }, (error) => {
-      console.error('Auth state change error:', error);
-      setError(error.message);
-      setLoading(false);
-    });
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        console.log('Auth state changed:', user ? `User ${user.uid} logged in` : 'No user');
+        setCurrentUser(user);
+        setLoading(false);
+        setError(null);
+      }, (error) => {
+        console.error('Auth state change error:', error);
+        setError(error.message);
+        setLoading(false);
+      });
 
-    // Add a timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      console.log('Auth loading timeout - forcing loading to false');
-      setLoading(false);
-    }, 2000); // Reduced to 2 second timeout
+      // Add a timeout to prevent infinite loading
+      const timeoutId = setTimeout(() => {
+        console.log('Auth loading timeout - forcing loading to false');
+        setLoading(false);
+      }, 2000); // Reduced to 2 second timeout
 
-    return () => {
-      clearTimeout(timeoutId);
-      unsubscribe();
-    };
+      return () => {
+        clearTimeout(timeoutId);
+        unsubscribe();
+      };
+    } catch (error) {
+      console.error('Error in auth useEffect:', error);
+      setLoading(false);
+      setError('Authentication initialization failed');
+    }
   }, []);
 
   const value = {
@@ -117,6 +123,8 @@ export function AuthProvider({ children }) {
     login,
     logout,
   };
+
+  console.log('AuthProvider about to render children with value:', value);
 
   return (
     <AuthContext.Provider value={value}>
