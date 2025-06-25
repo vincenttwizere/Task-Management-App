@@ -19,6 +19,8 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  console.log('AuthProvider render - currentUser:', currentUser, 'loading:', loading, 'error:', error);
+
   async function signup(email, password, displayName) {
     console.log('Starting signup process...', { email, displayName });
     
