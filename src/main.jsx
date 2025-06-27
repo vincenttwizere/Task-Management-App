@@ -1,7 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import App from './App';
 import './index.css';
 
@@ -11,14 +9,12 @@ if (root) {
   const reactRoot = ReactDOM.createRoot(root);
   reactRoot.render(
     <React.StrictMode>
-      <Router>
-        <AuthProvider>
-          <App />
-        </AuthProvider>
-      </Router>
+      <App />
     </React.StrictMode>
   );
 }
+
+console.log('main.jsx loaded successfully');
 
 // Add window error handlers
 window.onerror = function(message, source, lineno, colno, error) {
