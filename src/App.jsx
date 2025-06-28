@@ -6,13 +6,6 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Tasks from './pages/Tasks';
-import Projects from './pages/Projects';
-import ProjectBoard from './pages/ProjectBoard';
-import Calendar from './pages/Calendar';
-import Analytics from './pages/Analytics';
-import TeamManagement from './pages/TeamManagement';
-import AcceptInvite from './pages/AcceptInvite';
 
 // Import components
 import PrivateRoute from './components/PrivateRoute';
@@ -20,6 +13,8 @@ import Navbar from './components/Navbar';
 
 function AppContent() {
   const { currentUser, loading } = useAuth();
+
+  console.log('AppContent render - currentUser:', currentUser, 'loading:', loading);
 
   if (loading) {
     return (
@@ -37,42 +32,11 @@ function AppContent() {
           {/* Public routes */}
           <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/dashboard" />} />
           <Route path="/register" element={!currentUser ? <Register /> : <Navigate to="/dashboard" />} />
-          <Route path="/accept-invite" element={<AcceptInvite />} />
           
           {/* Protected routes */}
           <Route path="/dashboard" element={
             <PrivateRoute>
               <Dashboard />
-            </PrivateRoute>
-          } />
-          <Route path="/tasks" element={
-            <PrivateRoute>
-              <Tasks />
-            </PrivateRoute>
-          } />
-          <Route path="/projects" element={
-            <PrivateRoute>
-              <Projects />
-            </PrivateRoute>
-          } />
-          <Route path="/project/:projectId" element={
-            <PrivateRoute>
-              <ProjectBoard />
-            </PrivateRoute>
-          } />
-          <Route path="/calendar" element={
-            <PrivateRoute>
-              <Calendar />
-            </PrivateRoute>
-          } />
-          <Route path="/analytics" element={
-            <PrivateRoute>
-              <Analytics />
-            </PrivateRoute>
-          } />
-          <Route path="/team" element={
-            <PrivateRoute>
-              <TeamManagement />
             </PrivateRoute>
           } />
           
@@ -86,6 +50,8 @@ function AppContent() {
 }
 
 function App() {
+  console.log('App component rendering...');
+  
   return (
     <AuthProvider>
       <AppContent />
