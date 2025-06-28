@@ -1,43 +1,95 @@
 import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+// Import pages
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Tasks from './pages/Tasks';
+import Projects from './pages/Projects';
+import ProjectBoard from './pages/ProjectBoard';
+import Calendar from './pages/Calendar';
+import Analytics from './pages/Analytics';
+import TeamManagement from './pages/TeamManagement';
+import AcceptInvite from './pages/AcceptInvite';
+
+// Import components
+import PrivateRoute from './components/PrivateRoute';
+import Navbar from './components/Navbar';
+
+function AppContent() {
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="loading-spinner h-12 w-12"></div>
+      </div>
+    );
+  }
+
+  return (
+    <Router>
+      <div className="min-h-screen bg-gray-50">
+        {currentUser && <Navbar />}
+        <Routes>
+          {/* Public routes */}
+          <Route path="/login" element={!currentUser ? <Login /> : <Navigate to="/dashboard" />} />
+          <Route path="/register" element={!currentUser ? <Register /> : <Navigate to="/dashboard" />} />
+          <Route path="/accept-invite" element={<AcceptInvite />} />
+          
+          {/* Protected routes */}
+          <Route path="/dashboard" element={
+            <PrivateRoute>
+              <Dashboard />
+            </PrivateRoute>
+          } />
+          <Route path="/tasks" element={
+            <PrivateRoute>
+              <Tasks />
+            </PrivateRoute>
+          } />
+          <Route path="/projects" element={
+            <PrivateRoute>
+              <Projects />
+            </PrivateRoute>
+          } />
+          <Route path="/project/:projectId" element={
+            <PrivateRoute>
+              <ProjectBoard />
+            </PrivateRoute>
+          } />
+          <Route path="/calendar" element={
+            <PrivateRoute>
+              <Calendar />
+            </PrivateRoute>
+          } />
+          <Route path="/analytics" element={
+            <PrivateRoute>
+              <Analytics />
+            </PrivateRoute>
+          } />
+          <Route path="/team" element={
+            <PrivateRoute>
+              <TeamManagement />
+            </PrivateRoute>
+          } />
+          
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to={currentUser ? "/dashboard" : "/login"} />} />
+          <Route path="*" element={<Navigate to={currentUser ? "/dashboard" : "/login"} />} />
+        </Routes>
+      </div>
+    </Router>
+  );
+}
 
 function App() {
-  console.log('App component rendering...');
-  
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#f0f0f0',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{
-        backgroundColor: 'white',
-        padding: '2rem',
-        borderRadius: '8px',
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        textAlign: 'center'
-      }}>
-        <h1 style={{ color: '#333', marginBottom: '1rem' }}>TaskFlow App</h1>
-        <p style={{ color: '#666', marginBottom: '1rem' }}>React is working!</p>
-        <p style={{ color: '#888', fontSize: '0.9rem' }}>If you can see this, the app is loading correctly.</p>
-        <button 
-          style={{
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            padding: '0.5rem 1rem',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            marginTop: '1rem'
-          }}
-          onClick={() => alert('Button clicked! React is working properly.')}
-        >
-          Test Button
-        </button>
-      </div>
-    </div>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
